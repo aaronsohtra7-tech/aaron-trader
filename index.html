@@ -7,74 +7,216 @@
 <title>AARON TRADER</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b1020;color:#fff;font-family:Arial,sans-serif;padding:18px}
-header{text-align:center;padding:20px 0}
-h1{color:#36d399;letter-spacing:2px}
-.sub{color:#9ca3af;font-size:13px}
-.card{background:#151d30;border:1px solid #29364d;border-radius:14px;padding:18px;margin:15px 0}
-.label{color:#9ca3af;font-size:13px}
-.value{font-size:23px;font-weight:bold;margin-top:9px}
-select{background:#202b40;color:white;padding:12px;border:1px solid #42516b;border-radius:8px;width:100%;margin-top:10px}
-.signal{font-size:27px;color:#facc15;font-weight:bold;text-align:center;padding:15px}
-button{background:#16a875;color:white;border:0;padding:13px;border-radius:9px;width:100%;font-size:15px}
-footer{text-align:center;color:#64748b;font-size:12px;padding:20px}
+body{margin:0;background:#08111f;color:#edf4ff;font-family:Arial,sans-serif;padding:18px}
+header{text-align:center;padding:22px 10px}
+h1{color:#35d6a0;letter-spacing:2px;margin:5px}
+header p{color:#91a4bd}
+.card{background:#111e30;border:1px solid #24354c;border-radius:14px;padding:17px;margin:14px 0}
+h2{font-size:18px;color:#35d6a0;margin-top:0}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{background:#192940;padding:15px;border-radius:10px;text-align:center}
+.stat strong{display:block;font-size:25px;margin-top:8px}
+label{display:block;color:#aebed1;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid #354963;background:#091525;color:white;font-size:15px}
+button{border:0;border-radius:8px;padding:13px;background:#20bd8b;color:#04150f;font-weight:bold;width:100%;margin-top:14px;font-size:15px}
+.delete{background:#a83c4d;color:white;width:auto;padding:8px 12px;margin:0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 6px;border-bottom:1px solid #29394e;text-align:left}
+th{color:#35d6a0}
+.green{color:#35d6a0}.red{color:#ff6878}
+.small{font-size:12px;color:#91a4bd}
 </style>
 </head>
 <body>
+
 <header>
 <h1>AARON TRADER</h1>
-<div class="sub">FOREX ANALYSIS & TRADING JOURNAL</div>
+<p>Forex Analysis & Trading Journal</p>
 </header>
 
 <div class="card">
-<div class="label">MARKET DATA STATUS</div>
-<div class="value" style="color:#facc15">SIMULATED DEMO</div>
-<div class="sub">Real forex data is not connected yet.</div>
+<h2>Trading Overview</h2>
+<div class="stats">
+<div class="stat">Total Trades<strong id="total">0</strong></div>
+<div class="stat">Wins<strong class="green" id="wins">0</strong></div>
+<div class="stat">Losses<strong class="red" id="losses">0</strong></div>
+<div class="stat">Win Rate<strong id="rate">0%</strong></div>
+</div>
+<p>Net Profit / Loss: <strong id="profit">$0.00</strong></p>
 </div>
 
 <div class="card">
-<div class="label">SELECT CURRENCY PAIR</div>
+<h2>Market Selection</h2>
+<label>Currency Pair</label>
 <select id="pair">
 <option>EUR/USD</option>
 <option>GBP/USD</option>
 <option>USD/JPY</option>
 <option>USD/CHF</option>
 <option>AUD/USD</option>
+<option>USD/CAD</option>
 </select>
-</div>
 
-<div class="card">
-<div class="label">ANALYSIS TIMEFRAME</div>
-<select id="time">
+<label>Analysis Timeframe</label>
+<select id="timeframe">
 <option>1 Minute</option>
-<option>2 Minutes</option>
-<option>3 Minutes</option>
 <option>5 Minutes</option>
-<option>10 Minutes</option>
 <option>15 Minutes</option>
+<option>30 Minutes</option>
+<option>1 Hour</option>
+<option>4 Hours</option>
 </select>
+<p class="small">Live market prices and signals are not connected yet.</p>
 </div>
 
 <div class="card">
-<div class="label">CURRENT SIGNAL</div>
-<div class="signal">NO TRADE</div>
-<div class="sub" style="text-align:center">
-No verified market analysis available yet.
-</div>
+<h2>Add Trading Journal Entry</h2>
+<label>Trade Direction</label>
+<select id="direction">
+<option>BUY</option>
+<option>SELL</option>
+</select>
+
+<label>Trade Amount ($)</label>
+<input id="amount" type="number" min="0" step="0.01" placeholder="Example: 1">
+
+<label>Trade Result</label>
+<select id="result">
+<option value="Win">Win</option>
+<option value="Loss">Loss</option>
+<option value="Pending">Pending</option>
+</select>
+
+<label>Profit or Loss ($)</label>
+<input id="pl" type="number" step="0.01" placeholder="Example: 0.88 or -1">
+
+<label>Notes</label>
+<textarea id="notes" rows="2" placeholder="Write your trade notes..."></textarea>
+
+<button onclick="addTrade()">SAVE TRADE</button>
 </div>
 
 <div class="card">
-<div class="label">TRADING JOURNAL</div>
-<div class="value">0 Trades</div>
-<div class="sub">Wins: 0 | Losses: 0</div>
+<h2>Trading History</h2>
+<div style="overflow-x:auto">
+<table>
+<thead>
+<tr>
+<th>Pair</th>
+<th>Direction</th>
+<th>Amount</th>
+<th>Result</th>
+<th>P/L</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="history"></tbody>
+</table>
+</div>
+<p class="small" id="empty">No trades recorded yet.</p>
 </div>
 
-<div class="card">
-<div class="label">OUR TARGET</div>
-<div class="value" style="color:#36d399">A smarter trading journal</div>
-<div class="sub">Signals will be tested honestly. No guaranteed accuracy.</div>
-</div>
+<script>
+let trades = [];
+try {
+  trades = JSON.parse(localStorage.getItem("aaronTrades") || "[]");
+  if (!Array.isArray(trades)) trades = [];
+} catch(e) {
+  trades = [];
+}
 
-<footer>AARON TRADER © 2026</footer>
+function saveData() {
+  localStorage.setItem("aaronTrades", JSON.stringify(trades));
+}
+
+function addTrade() {
+  const amount = Number(document.getElementById("amount").value);
+  const result = document.getElementById("result").value;
+  const plText = document.getElementById("pl").value;
+  const pl = Number(plText);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    alert("Please enter a valid trade amount.");
+    return;
+  }
+
+  if (result !== "Pending" && (plText === "" || !Number.isFinite(pl))) {
+    alert("Please enter the profit or loss.");
+    return;
+  }
+
+  trades.push({
+    pair: document.getElementById("pair").value,
+    direction: document.getElementById("direction").value,
+    amount: amount,
+    result: result,
+    pl: result === "Pending" ? 0 : pl,
+    notes: document.getElementById("notes").value,
+    date: new Date().toLocaleString()
+  });
+
+  saveData();
+  document.getElementById("amount").value = "";
+  document.getElementById("pl").value = "";
+  document.getElementById("notes").value = "";
+  render();
+}
+
+function deleteTrade(index) {
+  if (!confirm("Delete this trade?")) return;
+  trades.splice(index, 1);
+  saveData();
+  render();
+}
+
+function render() {
+  const wins = trades.filter(t => t.result === "Win").length;
+  const losses = trades.filter(t => t.result === "Loss").length;
+  const completed = wins + losses;
+  const totalPL = trades.reduce((sum, t) => sum + Number(t.pl || 0), 0);
+
+  document.getElementById("total").textContent = trades.length;
+  document.getElementById("wins").textContent = wins;
+  document.getElementById("losses").textContent = losses;
+  document.getElementById("rate").textContent =
+    (completed ? (wins / completed * 100).toFixed(1) : 0) + "%";
+
+  const profit = document.getElementById("profit");
+  profit.textContent = "$" + totalPL.toFixed(2);
+  profit.className = totalPL >= 0 ? "green" : "red";
+
+  const history = document.getElementById("history");
+  history.innerHTML = "";
+
+  document.getElementById("empty").style.display =
+    trades.length ? "none" : "block";
+
+  trades.forEach((t, i) => {
+    const tr = document.createElement("tr");
+    const values = [
+      t.pair, t.direction, "$" + Number(t.amount).toFixed(2),
+      t.result, "$" + Number(t.pl || 0).toFixed(2)
+    ];
+
+    values.forEach(value => {
+      const td = document.createElement("td");
+      td.textContent = value;
+      tr.appendChild(td);
+    });
+
+    const action = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.textContent = "Delete";
+    btn.className = "delete";
+    btn.onclick = () => deleteTrade(i);
+    action.appendChild(btn);
+    tr.appendChild(action);
+    history.appendChild(tr);
+  });
+}
+
+render();
+</script>
 </body>
-</html>
+  </html>
+                     
