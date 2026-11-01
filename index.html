@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AARON TRADER</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1020;color:#fff;font-family:Arial,sans-serif;padding:18px}
+header{text-align:center;padding:20px 0}
+h1{color:#36d399;letter-spacing:2px}
+.sub{color:#9ca3af;font-size:13px}
+.card{background:#151d30;border:1px solid #29364d;border-radius:14px;padding:18px;margin:15px 0}
+.label{color:#9ca3af;font-size:13px}
+.value{font-size:23px;font-weight:bold;margin-top:9px}
+select{background:#202b40;color:white;padding:12px;border:1px solid #42516b;border-radius:8px;width:100%;margin-top:10px}
+.signal{font-size:27px;color:#facc15;font-weight:bold;text-align:center;padding:15px}
+button{background:#16a875;color:white;border:0;padding:13px;border-radius:9px;width:100%;font-size:15px}
+footer{text-align:center;color:#64748b;font-size:12px;padding:20px}
+</style>
+</head>
+<body>
+<header>
+<h1>AARON TRADER</h1>
+<div class="sub">FOREX ANALYSIS & TRADING JOURNAL</div>
+</header>
+
+<div class="card">
+<div class="label">MARKET DATA STATUS</div>
+<div class="value" style="color:#facc15">SIMULATED DEMO</div>
+<div class="sub">Real forex data is not connected yet.</div>
+</div>
+
+<div class="card">
+<div class="label">SELECT CURRENCY PAIR</div>
+<select id="pair">
+<option>EUR/USD</option>
+<option>GBP/USD</option>
+<option>USD/JPY</option>
+<option>USD/CHF</option>
+<option>AUD/USD</option>
+</select>
+</div>
+
+<div class="card">
+<div class="label">ANALYSIS TIMEFRAME</div>
+<select id="time">
+<option>1 Minute</option>
+<option>2 Minutes</option>
+<option>3 Minutes</option>
+<option>5 Minutes</option>
+<option>10 Minutes</option>
+<option>15 Minutes</option>
+</select>
+</div>
+
+<div class="card">
+<div class="label">CURRENT SIGNAL</div>
+<div class="signal">NO TRADE</div>
+<div class="sub" style="text-align:center">
+No verified market analysis available yet.
+</div>
+</div>
+
+<div class="card">
+<div class="label">TRADING JOURNAL</div>
+<div class="value">0 Trades</div>
+<div class="sub">Wins: 0 | Losses: 0</div>
+</div>
+
+<div class="card">
+<div class="label">OUR TARGET</div>
+<div class="value" style="color:#36d399">A smarter trading journal</div>
+<div class="sub">Signals will be tested honestly. No guaranteed accuracy.</div>
+</div>
+
+<footer>AARON TRADER © 2026</footer>
+</body>
+</html>
