@@ -584,6 +584,50 @@ function aaronCalculateStochastic(highs, lows, closes, period = 14, smooth = 3) 
         d: Number(percentD.toFixed(2))
     };
   }
+// AARON TRADER - VWAP Indicator
+function aaronCalculateVWAP(highs, lows, closes, volumes) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        !Array.isArray(volumes) ||
+        length === 0 ||
+        highs.length !== length ||
+        lows.length !== length ||
+        volumes.length !== length
+    ) {
+        return null;
+    }
+
+    let totalPriceVolume = 0;
+    let totalVolume = 0;
+
+    for (let i = 0; i < length; i++) {
+        const volume = volumes[i];
+
+        if (
+            !Number.isFinite(highs[i]) ||
+            !Number.isFinite(lows[i]) ||
+            !Number.isFinite(closes[i]) ||
+            !Number.isFinite(volume) ||
+            volume < 0
+        ) {
+            return null;
+        }
+
+        const typicalPrice =
+            (highs[i] + lows[i] + closes[i]) / 3;
+
+        totalPriceVolume += typicalPrice * volume;
+        totalVolume += volume;
+    }
+
+    if (totalVolume === 0) return null;
+
+    return Number((totalPriceVolume / totalVolume).toFixed(5));
+          }
 </script>
 </body>
   </html>
