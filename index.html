@@ -398,6 +398,20 @@ function aaronCalculateMACD(closes) {
         histogram: Number(histogram[last].toFixed(6))
     };
   }
+// AARON TRADER - SMA Indicator
+function aaronCalculateSMA(closes, period = 50) {
+    if (!Array.isArray(closes) || closes.length < period) {
+        return null;
+    }
+
+    const recentPrices = closes.slice(-period);
+
+    const total = recentPrices.reduce(
+        (sum, price) => sum + price, 0
+    );
+
+    return Number((total / period).toFixed(5));
+  }
 </script>
 </body>
   </html>
