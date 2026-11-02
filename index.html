@@ -521,6 +521,28 @@ function aaronCalculateATR(highs, lows, closes, period = 14) {
 
     return Number(atr.toFixed(5));
   }
+// AARON TRADER - Bollinger Bands
+function aaronCalculateBollingerBands(closes, period = 20, multiplier = 2) {
+    if (!Array.isArray(closes) || closes.length < period) {
+        return null;
+    }
+
+    const prices = closes.slice(-period);
+
+    const mean = prices.reduce((sum, price) => sum + price, 0) / period;
+
+    const variance = prices.reduce(
+        (sum, price) => sum + Math.pow(price - mean, 2), 0
+    ) / period;
+
+    const standardDeviation = Math.sqrt(variance);
+
+    return {
+        middle: Number(mean.toFixed(5)),
+        upper: Number((mean + multiplier * standardDeviation).toFixed(5)),
+        lower: Number((mean - multiplier * standardDeviation).toFixed(5))
+    };
+  }
 </script>
 </body>
   </html>
