@@ -787,6 +787,71 @@ function aaronFindSupplyDemand(highs, lows, opens, closes, strength = 3) {
         supply: supply.slice(-5).reverse()
     };
     }
+// AARON TRADER - Market Structure
+function aaronDetectMarketStructure(highs, lows, strength = 3) {
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        highs.length !== lows.length
+    ) {
+        return null;
+    }
+
+    const length = highs.length;
+
+    if (length < strength * 2 + 1) return null;
+
+    const swingHighs = [];
+    const swingLows = [];
+
+    for (let i = strength; i < length - strength; i++) {
+        let isHigh = true;
+        let isLow = true;
+
+        for (let j = 1; j <= strength; j++) {
+            if (
+                highs[i] <= highs[i - j] ||
+                highs[i] <= highs[i + j]
+            ) isHigh = false;
+
+            if (
+                lows[i] >= lows[i - j] ||
+                lows[i] >= lows[i + j]
+            ) isLow = false;
+        }
+
+        if (isHigh) {
+            const previous = swingHighs[swingHighs.length - 1];
+
+            let type = "SH";
+
+            if (previous) {
+                type = highs[i] > previous.price ? "HH" :
+                       highs[i] < previous.price ? "LH" : "EQH";
+            }
+
+            swingHighs.push({ price: highs[i], type });
+        }
+
+        if (isLow) {
+            const previous = swingLows[swingLows.length - 1];
+
+            let type = "SL";
+
+            if (previous) {
+                type = lows[i] > previous.price ? "HL" :
+                       lows[i] < previous.price ? "LL" : "EQL";
+            }
+
+            swingLows.push({ price: lows[i], type });
+        }
+    }
+
+    return {
+        swingHighs: swingHighs.slice(-10),
+        swingLows: swingLows.slice(-10)
+    };
+  }
 </script>
 </body>
   </html>
