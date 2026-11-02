@@ -355,6 +355,49 @@ function aaronCalculateEMA(closes, period = 20) {
 
     return Number(ema.toFixed(5));
   }
+// AARON TRADER - MACD Indicator
+function aaronCalculateMACD(closes) {
+    if (!Array.isArray(closes) || closes.length < 35) {
+        return null;
+    }
+
+    const emaValues = (data, period) => {
+        const multiplier = 2 / (period + 1);
+        const result = [];
+        let ema = data[0];
+
+        result.push(ema);
+
+        for (let i = 1; i < data.length; i++) {
+            ema = (data[i] * multiplier) +
+                  (ema * (1 - multiplier));
+            result.push(ema);
+        }
+
+        return result;
+    };
+
+    const ema12 = emaValues(closes, 12);
+    const ema26 = emaValues(closes, 26);
+
+    const macdLine = ema12.map((value, index) =>
+        value - ema26[index]
+    );
+
+    const signalLine = emaValues(macdLine, 9);
+
+    const histogram = macdLine.map((value, index) =>
+        value - signalLine[index]
+    );
+
+    const last = closes.length - 1;
+
+    return {
+        macd: Number(macdLine[last].toFixed(6)),
+        signal: Number(signalLine[last].toFixed(6)),
+        histogram: Number(histogram[last].toFixed(6))
+    };
+  }
 </script>
 </body>
   </html>
