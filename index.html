@@ -1133,6 +1133,83 @@ function aaronDetectLiquiditySweep(
         level: null
     };
   }
+// AARON TRADER - Order Blocks
+function aaronFindOrderBlocks(
+    opens,
+    highs,
+    lows,
+    closes,
+    lookback = 20,
+    strength = 1.5
+) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(opens) ||
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        opens.length !== length ||
+        highs.length !== length ||
+        lows.length !== length ||
+        length < lookback + 2
+    ) {
+        return null;
+    }
+
+    const blocks = [];
+    const start = Math.max(1, length - lookback);
+
+    for (let i = start; i < length - 1; i++) {
+        const candleRange = highs[i] - lows[i];
+        const body = Math.abs(closes[i] - opens[i]);
+
+        if (candleRange <= 0) continue;
+
+        const bodyRatio = body / candleRange;
+        if (bodyRatio < 0.5) continue;
+
+        const bullishMove =
+            closes[i] > opens[i] &&
+            closes[i] > highs[i - 1] &&
+            body >= candleRange / strength;
+
+        const bearishMove =
+            closes[i] < opens[i] &&
+            closes[i] < lows[i - 1] &&
+            body >= candleRange / strength;
+
+        if (bullishMove) {
+            for (let j = i - 1; j >= Math.max(0, i - 5); j--) {
+                if (closes[j] < opens[j]) {
+                    blocks.push({
+                        type: "BULLISH_ORDER_BLOCK",
+                        high: opens[j],
+                        low: lows[j],
+                        index: j
+                    });
+                    break;
+                }
+            }
+        }
+
+        if (bearishMove) {
+            for (let j = i - 1; j >= Math.max(0, i - 5); j--) {
+                if (closes[j] > opens[j]) {
+                    blocks.push({
+                        type: "BEARISH_ORDER_BLOCK",
+                        high: highs[j],
+                        low: opens[j],
+                        index: j
+                    });
+                    break;
+                }
+            }
+        }
+    }
+
+    return blocks;
+  }
 </script>
 </body>
   </html>
