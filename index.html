@@ -852,6 +852,76 @@ function aaronDetectMarketStructure(highs, lows, strength = 3) {
         swingLows: swingLows.slice(-10)
     };
   }
+// AARON TRADER - BOS & CHoCH
+function aaronDetectBOSCHoCH(highs, lows, closes, strength = 3) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        highs.length !== length ||
+        lows.length !== length ||
+        length < strength * 2 + 2
+    ) {
+        return null;
+    }
+
+    const swingHighs = [];
+    const swingLows = [];
+
+    for (let i = strength; i < length - strength; i++) {
+        let isHigh = true;
+        let isLow = true;
+
+        for (let j = 1; j <= strength; j++) {
+            if (
+                highs[i] <= highs[i - j] ||
+                highs[i] <= highs[i + j]
+            ) isHigh = false;
+
+            if (
+                lows[i] >= lows[i - j] ||
+                lows[i] >= lows[i + j]
+            ) isLow = false;
+        }
+
+        if (isHigh) swingHighs.push(highs[i]);
+        if (isLow) swingLows.push(lows[i]);
+    }
+
+    if (!swingHighs.length || !swingLows.length) return null;
+
+    const previousHigh = swingHighs[swingHighs.length - 1];
+    const previousLow = swingLows[swingLows.length - 1];
+    const currentClose = closes[length - 1];
+    const previousClose = closes[length - 2];
+
+    let trend = "SIDEWAYS";
+    let signal = "NONE";
+
+    if (previousClose <= previousHigh && currentClose > previousHigh) {
+        signal = "BULLISH_BREAK";
+    } else if (
+        previousClose >= previousLow &&
+        currentClose < previousLow
+    ) {
+        signal = "BEARISH_BREAK";
+    }
+
+    if (signal === "BULLISH_BREAK") trend = "BULLISH";
+    if (signal === "BEARISH_BREAK") trend = "BEARISH";
+
+    return {
+        trend,
+        signal,
+        brokenLevel: signal === "BULLISH_BREAK"
+            ? previousHigh
+            : signal === "BEARISH_BREAK"
+                ? previousLow
+                : null
+    };
+      }
 </script>
 </body>
   </html>
