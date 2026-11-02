@@ -543,6 +543,47 @@ function aaronCalculateBollingerBands(closes, period = 20, multiplier = 2) {
         lower: Number((mean - multiplier * standardDeviation).toFixed(5))
     };
   }
+// AARON TRADER - Stochastic Indicator
+function aaronCalculateStochastic(highs, lows, closes, period = 14, smooth = 3) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        highs.length !== length ||
+        lows.length !== length ||
+        length < period + smooth - 1
+    ) {
+        return null;
+    }
+
+    const kValues = [];
+
+    for (let i = length - smooth; i < length; i++) {
+        const start = i - period + 1;
+
+        const highestHigh = Math.max(...highs.slice(start, i + 1));
+        const lowestLow = Math.min(...lows.slice(start, i + 1));
+
+        const range = highestHigh - lowestLow;
+
+        const k = range === 0
+            ? 50
+            : ((closes[i] - lowestLow) / range) * 100;
+
+        kValues.push(k);
+    }
+
+    const percentK = kValues[kValues.length - 1];
+
+    const percentD = kValues.reduce((sum, value) => sum + value, 0) / smooth;
+
+    return {
+        k: Number(percentK.toFixed(2)),
+        d: Number(percentD.toFixed(2))
+    };
+  }
 </script>
 </body>
   </html>
