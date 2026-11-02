@@ -724,6 +724,69 @@ function aaronFindSupportResistance(highs, lows, closes, strength = 3) {
             .slice(0, 5)
     };
   }
+// AARON TRADER - Supply & Demand Zones
+function aaronFindSupplyDemand(highs, lows, opens, closes, strength = 3) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(opens) ||
+        !Array.isArray(closes) ||
+        highs.length !== length ||
+        lows.length !== length ||
+        opens.length !== length ||
+        length < (strength * 2 + 1)
+    ) {
+        return null;
+    }
+
+    const demand = [];
+    const supply = [];
+
+    for (let i = strength; i < length - strength; i++) {
+        let swingHigh = true;
+        let swingLow = true;
+
+        for (let j = 1; j <= strength; j++) {
+            if (
+                highs[i] <= highs[i - j] ||
+                highs[i] <= highs[i + j]
+            ) {
+                swingHigh = false;
+            }
+
+            if (
+                lows[i] >= lows[i - j] ||
+                lows[i] >= lows[i + j]
+            ) {
+                swingLow = false;
+            }
+        }
+
+        const candleTop = Math.max(opens[i], closes[i]);
+        const candleBottom = Math.min(opens[i], closes[i]);
+
+        if (swingLow) {
+            demand.push({
+                low: Number(lows[i].toFixed(5)),
+                high: Number(candleTop.toFixed(5))
+            });
+        }
+
+        if (swingHigh) {
+            supply.push({
+                low: Number(candleBottom.toFixed(5)),
+                high: Number(highs[i].toFixed(5))
+            });
+        }
+    }
+
+    return {
+        demand: demand.slice(-5).reverse(),
+        supply: supply.slice(-5).reverse()
+    };
+    }
 </script>
 </body>
   </html>
