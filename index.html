@@ -922,6 +922,127 @@ function aaronDetectBOSCHoCH(highs, lows, closes, strength = 3) {
                 : null
     };
       }
+// AARON TRADER - Breakout & Retest
+function aaronDetectBreakoutRetest(
+    highs,
+    lows,
+    closes,
+    strength = 3,
+    lookback = 10,
+    tolerance = 0.001
+) {
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        highs.length !== lows.length ||
+        highs.length !== closes.length ||
+        closes.length < strength * 2 + lookback + 2
+    ) {
+        return null;
+    }
+
+    const length = closes.length;
+    const swingHighs = [];
+    const swingLows = [];
+
+    for (let i = strength; i < length - strength; i++) {
+        let isHigh = true;
+        let isLow = true;
+
+        for (let j = 1; j <= strength; j++) {
+            if (
+                highs[i] <= highs[i - j] ||
+                highs[i] <= highs[i + j]
+            ) isHigh = false;
+
+            if (
+                lows[i] >= lows[i - j] ||
+                lows[i] >= lows[i + j]
+            ) isLow = false;
+        }
+
+        if (isHigh) swingHighs.push({ level: highs[i], index: i });
+        if (isLow) swingLows.push({ level: lows[i], index: i });
+    }
+
+    const lastHigh = swingHighs[swingHighs.length - 1];
+    const lastLow = swingLows[swingLows.length - 1];
+
+    if (!lastHigh || !lastLow) return null;
+
+    const start = Math.max(1, length - lookback);
+    let bullishBreak = null;
+    let bearishBreak = null;
+
+    for (let i = start; i < length; i++) {
+        if (
+            lastHigh.index < i &&
+            closes[i - 1] <= lastHigh.level &&
+            closes[i] > lastHigh.level
+        ) {
+            bullishBreak = i;
+        }
+
+        if (
+            lastLow.index < i &&
+            closes[i - 1] >= lastLow.level &&
+            closes[i] < lastLow.level
+        ) {
+            bearishBreak = i;
+        }
+    }
+
+    const current = length - 1;
+
+    if (bullishBreak !== null && bullishBreak < current) {
+        const level = lastHigh.level;
+
+        if (
+            lows[current] <= level * (1 + tolerance) &&
+            closes[current] > level
+        ) {
+            return {
+                direction: "BULLISH",
+                signal: "BULLISH_RETEST",
+                level
+            };
+        }
+
+        return {
+            direction: "BULLISH",
+            signal: "BULLISH_BREAKOUT",
+            level
+        };
+    }
+
+    if (bearishBreak !== null && bearishBreak < current) {
+        const level = lastLow.level;
+
+        if (
+            highs[current] >= level * (1 - tolerance) &&
+            closes[current] < level
+        ) {
+            return {
+                direction: "BEARISH",
+                signal: "BEARISH_RETEST",
+                level
+            };
+        }
+
+        return {
+            direction: "BEARISH",
+            signal: "BEARISH_BREAKOUT",
+            level
+        };
+    }
+
+    return {
+        direction: "NONE",
+        signal: "NO_BREAKOUT",
+        level: null
+    };
+  }
 </script>
 </body>
   </html>
