@@ -668,6 +668,62 @@ function aaronCalculateIchimoku(highs, lows, closes) {
         chikou: Number(chikou.toFixed(5))
     };
   }
+// AARON TRADER - Support & Resistance
+function aaronFindSupportResistance(highs, lows, closes, strength = 3) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        length < (strength * 2 + 1) ||
+        highs.length !== length ||
+        lows.length !== length
+    ) {
+        return null;
+    }
+
+    const supports = [];
+    const resistances = [];
+
+    for (let i = strength; i < length - strength; i++) {
+        let isSwingHigh = true;
+        let isSwingLow = true;
+
+        for (let j = 1; j <= strength; j++) {
+            if (
+                highs[i] <= highs[i - j] ||
+                highs[i] <= highs[i + j]
+            ) {
+                isSwingHigh = false;
+            }
+
+            if (
+                lows[i] >= lows[i - j] ||
+                lows[i] >= lows[i + j]
+            ) {
+                isSwingLow = false;
+            }
+        }
+
+        if (isSwingLow) supports.push(highs[i] === lows[i] ? lows[i] : lows[i]);
+        if (isSwingHigh) resistances.push(highs[i]);
+    }
+
+    const currentPrice = closes[length - 1];
+
+    return {
+        supports: supports
+            .filter(level => level < currentPrice)
+            .sort((a, b) => b - a)
+            .slice(0, 5),
+
+        resistances: resistances
+            .filter(level => level > currentPrice)
+            .sort((a, b) => a - b)
+            .slice(0, 5)
+    };
+  }
 </script>
 </body>
   </html>
