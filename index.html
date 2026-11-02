@@ -628,6 +628,46 @@ function aaronCalculateVWAP(highs, lows, closes, volumes) {
 
     return Number((totalPriceVolume / totalVolume).toFixed(5));
           }
+// AARON TRADER - Ichimoku Cloud
+function aaronCalculateIchimoku(highs, lows, closes) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        highs.length !== length ||
+        lows.length !== length ||
+        length < 52
+    ) {
+        return null;
+    }
+
+    function midpoint(period) {
+        const start = length - period;
+        const recentHighs = highs.slice(start);
+        const recentLows = lows.slice(start);
+
+        return (
+            Math.max(...recentHighs) +
+            Math.min(...recentLows)
+        ) / 2;
+    }
+
+    const tenkan = midpoint(9);
+    const kijun = midpoint(26);
+    const senkouA = (tenkan + kijun) / 2;
+    const senkouB = midpoint(52);
+    const chikou = closes[length - 1];
+
+    return {
+        tenkan: Number(tenkan.toFixed(5)),
+        kijun: Number(kijun.toFixed(5)),
+        senkouA: Number(senkouA.toFixed(5)),
+        senkouB: Number(senkouB.toFixed(5)),
+        chikou: Number(chikou.toFixed(5))
+    };
+  }
 </script>
 </body>
   </html>
