@@ -412,6 +412,78 @@ function aaronCalculateSMA(closes, period = 50) {
 
     return Number((total / period).toFixed(5));
   }
+// AARON TRADER - ADX Indicator
+function aaronCalculateADX(highs, lows, closes, period = 14) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        length < (period * 2 + 1) ||
+        highs.length !== length ||
+        lows.length !== length
+    ) {
+        return null;
+    }
+
+    const tr = [];
+    const plusDM = [];
+    const minusDM = [];
+
+    for (let i = 1; i < length; i++) {
+        const upMove = highs[i] - highs[i - 1];
+        const downMove = lows[i - 1] - lows[i];
+
+        tr.push(Math.max(
+            highs[i] - lows[i],
+            Math.abs(highs[i] - closes[i - 1]),
+            Math.abs(lows[i] - closes[i - 1])
+        ));
+
+        plusDM.push(
+            upMove > downMove && upMove > 0 ? upMove : 0
+        );
+
+        minusDM.push(
+            downMove > upMove && downMove > 0 ? downMove : 0
+        );
+    }
+
+    let smoothTR = tr.slice(0, period).reduce((a, b) => a + b, 0);
+    let smoothPlus = plusDM.slice(0, period).reduce((a, b) => a + b, 0);
+    let smoothMinus = minusDM.slice(0, period).reduce((a, b) => a + b, 0);
+
+    const dxValues = [];
+
+    for (let i = period; i < tr.length; i++) {
+        if (i > period) {
+            smoothTR = smoothTR - smoothTR / period + tr[i];
+            smoothPlus = smoothPlus - smoothPlus / period + plusDM[i];
+            smoothMinus = smoothMinus - smoothMinus / period + minusDM[i];
+        }
+
+        const plusDI = smoothTR === 0 ? 0 : 100 * smoothPlus / smoothTR;
+        const minusDI = smoothTR === 0 ? 0 : 100 * smoothMinus / smoothTR;
+        const denominator = plusDI + minusDI;
+
+        dxValues.push(
+            denominator === 0
+                ? 0
+                : 100 * Math.abs(plusDI - minusDI) / denominator
+        );
+    }
+
+    if (dxValues.length < period) return null;
+
+    let adx = dxValues.slice(0, period).reduce((a, b) => a + b, 0) / period;
+
+    for (let i = period; i < dxValues.length; i++) {
+        adx = ((adx * (period - 1)) + dxValues[i]) / period;
+    }
+
+    return Number(adx.toFixed(2));
+  }
 </script>
 </body>
   </html>
