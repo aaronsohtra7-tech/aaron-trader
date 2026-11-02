@@ -1043,6 +1043,96 @@ function aaronDetectBreakoutRetest(
         level: null
     };
   }
+// AARON TRADER - Liquidity Sweep
+function aaronDetectLiquiditySweep(
+    highs,
+    lows,
+    closes,
+    strength = 3,
+    lookback = 30
+) {
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        highs.length !== lows.length ||
+        highs.length !== closes.length ||
+        closes.length < strength * 2 + 2
+    ) {
+        return null;
+    }
+
+    const current = closes.length - 1;
+    const start = Math.max(0, current - lookback);
+    const swingHighs = [];
+    const swingLows = [];
+
+    for (
+        let i = Math.max(strength, start);
+        i < current - strength;
+        i++
+    ) {
+        let isHigh = true;
+        let isLow = true;
+
+        for (let j = 1; j <= strength; j++) {
+            if (
+                highs[i] <= highs[i - j] ||
+                highs[i] <= highs[i + j]
+            ) isHigh = false;
+
+            if (
+                lows[i] >= lows[i - j] ||
+                lows[i] >= lows[i + j]
+            ) isLow = false;
+        }
+
+        if (isHigh) swingHighs.push(highs[i]);
+        if (isLow) swingLows.push(lows[i]);
+    }
+
+    const previousHigh = swingHighs[swingHighs.length - 1];
+    const previousLow = swingLows[swingLows.length - 1];
+
+    const sweptHigh =
+        previousHigh !== undefined &&
+        highs[current] > previousHigh &&
+        closes[current] < previousHigh;
+
+    const sweptLow =
+        previousLow !== undefined &&
+        lows[current] < previousLow &&
+        closes[current] > previousLow;
+
+    if (sweptHigh && sweptLow) {
+        return {
+            signal: "BOTH_SIDES_SWEPT",
+            direction: "UNCLEAR"
+        };
+    }
+
+    if (sweptHigh) {
+        return {
+            signal: "BEARISH_LIQUIDITY_SWEEP",
+            direction: "BEARISH",
+            level: previousHigh
+        };
+    }
+
+    if (sweptLow) {
+        return {
+            signal: "BULLISH_LIQUIDITY_SWEEP",
+            direction: "BULLISH",
+            level: previousLow
+        };
+    }
+
+    return {
+        signal: "NO_LIQUIDITY_SWEEP",
+        direction: "NONE",
+        level: null
+    };
+  }
 </script>
 </body>
   </html>
