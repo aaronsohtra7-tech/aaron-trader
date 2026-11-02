@@ -229,7 +229,7 @@ function render() {
 render();
 function updateTradingViewChart() {
   const pair = document.getElementById("pair").value;
-  const timeframe = document.getElementById("timeframe").value;
+  const timeframe = document.getElementById("timeframe").value.trim().toLowerCase();
 
   const symbol = pair.replace("/", "");
 
