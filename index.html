@@ -332,6 +332,29 @@ function aaronCalculateRSI(closes, period = 14) {
 
     return Number(rsi.toFixed(2));
   }
+// AARON TRADER - EMA Indicator
+function aaronCalculateEMA(closes, period = 20) {
+    if (!Array.isArray(closes) || closes.length < period) {
+        return null;
+    }
+
+    const multiplier = 2 / (period + 1);
+
+    let sum = 0;
+
+    for (let i = 0; i < period; i++) {
+        sum += closes[i];
+    }
+
+    let ema = sum / period;
+
+    for (let i = period; i < closes.length; i++) {
+        ema = (closes[i] * multiplier) +
+              (ema * (1 - multiplier));
+    }
+
+    return Number(ema.toFixed(5));
+  }
 </script>
 </body>
   </html>
