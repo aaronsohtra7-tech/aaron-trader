@@ -484,6 +484,43 @@ function aaronCalculateADX(highs, lows, closes, period = 14) {
 
     return Number(adx.toFixed(2));
   }
+// AARON TRADER - ATR Indicator
+function aaronCalculateATR(highs, lows, closes, period = 14) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        length < period + 1 ||
+        highs.length !== length ||
+        lows.length !== length
+    ) {
+        return null;
+    }
+
+    const trueRanges = [];
+
+    for (let i = 1; i < length; i++) {
+        const tr = Math.max(
+            highs[i] - lows[i],
+            Math.abs(highs[i] - closes[i - 1]),
+            Math.abs(lows[i] - closes[i - 1])
+        );
+
+        trueRanges.push(tr);
+    }
+
+    let atr = trueRanges
+        .slice(0, period)
+        .reduce((sum, value) => sum + value, 0) / period;
+
+    for (let i = period; i < trueRanges.length; i++) {
+        atr = ((atr * (period - 1)) + trueRanges[i]) / period;
+    }
+
+    return Number(atr.toFixed(5));
+  }
 </script>
 </body>
   </html>
