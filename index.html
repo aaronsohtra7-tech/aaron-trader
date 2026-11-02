@@ -1210,6 +1210,49 @@ function aaronFindOrderBlocks(
 
     return blocks;
   }
+// AARON TRADER - Fair Value Gaps
+function aaronFindFairValueGaps(
+    highs,
+    lows,
+    lookback = 50
+) {
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        highs.length !== lows.length ||
+        highs.length < 3
+    ) {
+        return null;
+    }
+
+    const gaps = [];
+    const length = highs.length;
+    const start = Math.max(2, length - lookback);
+
+    for (let i = start; i < length; i++) {
+        // Bullish FVG: third candle's low is above first candle's high
+        if (lows[i] > highs[i - 2]) {
+            gaps.push({
+                type: "BULLISH_FVG",
+                top: lows[i],
+                bottom: highs[i - 2],
+                index: i
+            });
+        }
+
+        // Bearish FVG: third candle's high is below first candle's low
+        if (highs[i] < lows[i - 2]) {
+            gaps.push({
+                type: "BEARISH_FVG",
+                top: lows[i - 2],
+                bottom: highs[i],
+                index: i
+            });
+        }
+    }
+
+    return gaps;
+  }
 </script>
 </body>
   </html>
