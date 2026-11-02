@@ -234,14 +234,14 @@ function updateTradingViewChart() {
   const symbol = pair.replace("/", "");
 
   const intervals = {
-  "1 Minute": "1",
-  "5 Minutes": "5",
-  "15 Minutes": "15",
-  "30 Minutes": "30",
-  "1 Hour": "60",
-  "4 Hours": "240"
+  "1 minute": "1",
+  "5 minutes": "5",
+  "15 minutes": "15",
+  "30 minutes": "30",
+  "1 hour": "60",
+  "4 hour": "240",
+  "4 hours": "240"
 };
-
   const interval = intervals[timeframe] || "5";
 
   document.getElementById("tradingview-chart").src =
