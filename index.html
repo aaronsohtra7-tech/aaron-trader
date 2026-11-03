@@ -1854,6 +1854,82 @@ function aaronCheckTimeframeAgreement(timeframeResults) {
     };
   }
   
+
+// AARON TRADER - Higher & Lower Timeframe Alignment
+
+function aaronAnalyzeTimeframeAlignment(timeframeResults) {
+    if (!timeframeResults || typeof timeframeResults !== "object") {
+        return null;
+    }
+
+    function getTrend(timeframe) {
+        const result = timeframeResults[timeframe];
+        if (!result || !result.trend) return "UNAVAILABLE";
+
+        const trend = String(result.trend).toUpperCase();
+
+        if (["BULLISH", "BEARISH", "SIDEWAYS"].includes(trend)) {
+            return trend;
+        }
+
+        return "UNAVAILABLE";
+    }
+
+    const higher = {
+        "4h": getTrend("4h"),
+        "1d": getTrend("1d")
+    };
+
+    const lower = {
+        "1m": getTrend("1m"),
+        "5m": getTrend("5m"),
+        "15m": getTrend("15m")
+    };
+
+    const higherTrends = Object.values(higher)
+        .filter(trend => trend !== "UNAVAILABLE");
+
+    const lowerTrends = Object.values(lower)
+        .filter(trend => trend !== "UNAVAILABLE");
+
+    function getMajority(trends) {
+        const bullish = trends.filter(t => t === "BULLISH").length;
+        const bearish = trends.filter(t => t === "BEARISH").length;
+        const sideways = trends.filter(t => t === "SIDEWAYS").length;
+
+        if (bullish > bearish && bullish > sideways) return "BULLISH";
+        if (bearish > bullish && bearish > sideways) return "BEARISH";
+        if (sideways > bullish && sideways > bearish) return "SIDEWAYS";
+
+        return trends.length ? "MIXED" : "UNAVAILABLE";
+    }
+
+    const higherBias = getMajority(higherTrends);
+    const lowerBias = getMajority(lowerTrends);
+
+    let alignment = "INSUFFICIENT DATA";
+
+    if (higherBias !== "UNAVAILABLE" && lowerBias !== "UNAVAILABLE") {
+        if (higherBias === lowerBias &&
+            higherBias !== "MIXED" &&
+            higherBias !== "SIDEWAYS") {
+            alignment = "ALIGNED";
+        } else if (higherBias === "MIXED" || lowerBias === "MIXED") {
+            alignment = "MIXED";
+        } else {
+            alignment = "NOT ALIGNED";
+        }
+    }
+
+    return {
+        higherTimeframeBias: higherBias,
+        lowerTimeframeBias: lowerBias,
+        alignment,
+        higherTimeframes: higher,
+        lowerTimeframes: lower
+    };
+  }
+  
 </script>
 </body>
   </html>
