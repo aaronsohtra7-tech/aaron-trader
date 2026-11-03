@@ -2965,6 +2965,81 @@ function aaronCalculatePositionSize(
         message: "Position size calculated successfully."
     };
   }
+// AARON TRADER - Multi-Timeframe Confirmation Engine
+function aaronConfirmMultiTimeframePrediction(timeframeResults) {
+    const requiredTimeframes = [
+        "1m", "5m", "15m", "30m", "1h", "4h", "1d"
+    ];
+
+    const validDirections = ["BULLISH", "BEARISH", "NEUTRAL"];
+
+    if (!timeframeResults || typeof timeframeResults !== "object") {
+        return {
+            decision: "NO TRADE",
+            reason: "Timeframe data is missing."
+        };
+    }
+
+    const directions = {};
+
+    for (const timeframe of requiredTimeframes) {
+        const result = timeframeResults[timeframe];
+
+        if (!result || !validDirections.includes(result.direction)) {
+            return {
+                decision: "NO TRADE",
+                reason: "Missing or invalid data for " + timeframe
+            };
+        }
+
+        directions[timeframe] = result.direction;
+    }
+
+    const bullishCount = Object.values(directions)
+        .filter(direction => direction === "BULLISH").length;
+
+    const bearishCount = Object.values(directions)
+        .filter(direction => direction === "BEARISH").length;
+
+    const higherBullish =
+        directions["4h"] === "BULLISH" &&
+        directions["1d"] === "BULLISH";
+
+    const higherBearish =
+        directions["4h"] === "BEARISH" &&
+        directions["1d"] === "BEARISH";
+
+    const shortBullish = ["1m", "5m", "15m"]
+        .filter(tf => directions[tf] === "BULLISH").length;
+
+    const shortBearish = ["1m", "5m", "15m"]
+        .filter(tf => directions[tf] === "BEARISH").length;
+
+    if (higherBullish && bullishCount >= 5 && shortBullish >= 2) {
+        return {
+            decision: "BUY",
+            agreement: bullishCount + "/7",
+            directions: directions,
+            reason: "Higher and lower timeframes support a bullish trend."
+        };
+    }
+
+    if (higherBearish && bearishCount >= 5 && shortBearish >= 2) {
+        return {
+            decision: "SELL",
+            agreement: bearishCount + "/7",
+            directions: directions,
+            reason: "Higher and lower timeframes support a bearish trend."
+        };
+    }
+
+    return {
+        decision: "NO TRADE",
+        agreement: Math.max(bullishCount, bearishCount) + "/7",
+        directions: directions,
+        reason: "Timeframes are not sufficiently aligned."
+    };
+  }
 </script>
 </body>
   </html>
