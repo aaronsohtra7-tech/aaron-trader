@@ -4341,6 +4341,52 @@ function aaronDisplayIchimokuTest() {
     document.body.appendChild(panel);
   }
 aaronDisplayIchimokuTest();
+// AARON TRADER - CCI CALCULATION TEST
+
+function aaronTestCCI() {
+    const high = Array.from({length: 20}, (_, i) => 110 + i);
+    const low = Array.from({length: 20}, (_, i) => 90 + i);
+    const close = Array.from({length: 20}, (_, i) => 100 + i);
+
+    const typicalPrices = high.map((h, i) =>
+        (h + low[i] + close[i]) / 3
+    );
+
+    const mean = typicalPrices.reduce((a, b) => a + b, 0) / 20;
+
+    const meanDeviation = typicalPrices.reduce(
+        (sum, price) => sum + Math.abs(price - mean), 0
+    ) / 20;
+
+    const cci = meanDeviation === 0
+        ? null
+        : (typicalPrices[19] - mean) / (0.015 * meanDeviation);
+
+    return {
+        status: Number.isFinite(cci) ? "PASSED" : "FAILED",
+        cci: Number(cci.toFixed(5)),
+        period: 20,
+        note: "Sample data only; not a live market test."
+    };
+}
+
+function aaronDisplayCCITest() {
+    const result = aaronTestCCI();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>CCI Calculation Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+  }
 </script>
 </body>
   </html>
