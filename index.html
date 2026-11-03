@@ -1930,6 +1930,99 @@ function aaronAnalyzeTimeframeAlignment(timeframeResults) {
     };
   }
   
+
+// AARON TRADER - Weighted Multi-Timeframe Trend Score
+
+function aaronCalculateWeightedMTFScore(timeframeResults) {
+    if (!timeframeResults || typeof timeframeResults !== "object") {
+        return null;
+    }
+
+    const weights = {
+        "1m": 1,
+        "5m": 2,
+        "15m": 3,
+        "30m": 4,
+        "1h": 5,
+        "4h": 6,
+        "1d": 7
+    };
+
+    let bullishScore = 0;
+    let bearishScore = 0;
+    let sidewaysScore = 0;
+    let availableWeight = 0;
+    const details = {};
+
+    for (const [timeframe, weight] of Object.entries(weights)) {
+        const result = timeframeResults[timeframe];
+        const trend = result && result.trend
+            ? String(result.trend).toUpperCase()
+            : "UNAVAILABLE";
+
+        if (!["BULLISH", "BEARISH", "SIDEWAYS"].includes(trend)) {
+            details[timeframe] = {
+                trend: "UNAVAILABLE",
+                weight
+            };
+            continue;
+        }
+
+        availableWeight += weight;
+
+        if (trend === "BULLISH") bullishScore += weight;
+        if (trend === "BEARISH") bearishScore += weight;
+        if (trend === "SIDEWAYS") sidewaysScore += weight;
+
+        details[timeframe] = {
+            trend,
+            weight
+        };
+    }
+
+    if (availableWeight === 0) {
+        return {
+            direction: "INSUFFICIENT DATA",
+            bullishPercent: 0,
+            bearishPercent: 0,
+            sidewaysPercent: 0,
+            availableWeight: 0,
+            timeframeDetails: details
+        };
+    }
+
+    const bullishPercent = Math.round(
+        bullishScore / availableWeight * 100
+    );
+
+    const bearishPercent = Math.round(
+        bearishScore / availableWeight * 100
+    );
+
+    const sidewaysPercent = Math.round(
+        sidewaysScore / availableWeight * 100
+    );
+
+    let direction = "MIXED";
+
+    if (bullishPercent >= 60) {
+        direction = "BULLISH";
+    } else if (bearishPercent >= 60) {
+        direction = "BEARISH";
+    } else if (sidewaysPercent >= 60) {
+        direction = "SIDEWAYS";
+    }
+
+    return {
+        direction,
+        bullishPercent,
+        bearishPercent,
+        sidewaysPercent,
+        availableWeight,
+        timeframeDetails: details
+    };
+  }
+  
 </script>
 </body>
   </html>
