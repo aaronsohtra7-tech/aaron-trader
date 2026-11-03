@@ -3112,6 +3112,102 @@ function aaronBuildPredictionExplanation(decision, details = {}) {
         note: "These are analysis reasons, not a guarantee of trade outcome."
     };
 }
+// AARON TRADER - NO TRADE Safety Filter
+function aaronApplyNoTradeSafetyFilter(analysis = {}) {
+    const reasons = [];
+
+    // 1. Check market data freshness
+    if (analysis.dataFresh !== true) {
+        reasons.push("Market data is missing, stale, or unverified.");
+    }
+
+    // 2. Check market condition
+    if (analysis.marketCondition === "SIDEWAYS") {
+        reasons.push("Market is sideways.");
+    }
+
+    // 3. Check multi-timeframe confirmation
+    const mtf = analysis.mtfConfirmation;
+
+    if (
+        !mtf ||
+        !["BUY", "SELL"].includes(mtf.decision)
+    ) {
+        reasons.push("Multi-timeframe confirmation is missing or weak.");
+    }
+
+    // 4. Check news risk
+    if (analysis.newsRisk === "HIGH") {
+        reasons.push("High-impact news risk detected.");
+    }
+
+    // 5. Check directional signals
+    const signals = Array.isArray(analysis.signals)
+        ? analysis.signals
+        : [];
+
+    const validSignals = signals.filter(signal =>
+        signal &&
+        ["BULLISH", "BEARISH", "NEUTRAL"].includes(signal.direction)
+    );
+
+    if (validSignals.length < 3) {
+        reasons.push("Not enough valid indicator signals.");
+    }
+
+    const bullish = validSignals.filter(
+        signal => signal.direction === "BULLISH"
+    ).length;
+
+    const bearish = validSignals.filter(
+        signal => signal.direction === "BEARISH"
+    ).length;
+
+    if (bullish > 0 && bearish > 0) {
+        const difference = Math.abs(bullish - bearish);
+
+        if (difference < 2) {
+            reasons.push("Indicator signals are conflicting.");
+        }
+    }
+
+    // 6. Check prediction decision
+    if (!["BUY", "SELL"].includes(analysis.decision)) {
+        reasons.push("No valid BUY or SELL decision is available.");
+    }
+
+    // 7. Compare prediction with MTF direction
+    if (
+        mtf &&
+        analysis.decision === "BUY" &&
+        mtf.decision !== "BUY"
+    ) {
+        reasons.push("BUY prediction conflicts with timeframe confirmation.");
+    }
+
+    if (
+        mtf &&
+        analysis.decision === "SELL" &&
+        mtf.decision !== "SELL"
+    ) {
+        reasons.push("SELL prediction conflicts with timeframe confirmation.");
+    }
+
+    // Final decision
+    if (reasons.length > 0) {
+        return {
+            approved: false,
+            decision: "NO TRADE",
+            reasons: reasons
+        };
+    }
+
+    return {
+        approved: true,
+        decision: analysis.decision,
+        reasons: ["All configured safety checks passed."]
+    };
+  }
 </script>
 </body>
   </html>
