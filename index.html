@@ -2334,6 +2334,118 @@ function aaronDetectRSIDivergence(
     };
   }
   
+
+// AARON TRADER - MACD Divergence Detection
+
+function aaronDetectMACDDivergence(
+    closes,
+    macdLine,
+    lookback = 50,
+    pivotStrength = 3
+) {
+    if (
+        !Array.isArray(closes) ||
+        !Array.isArray(macdLine) ||
+        closes.length !== macdLine.length ||
+        !Number.isInteger(lookback) ||
+        !Number.isInteger(pivotStrength) ||
+        pivotStrength < 1 ||
+        lookback < pivotStrength * 2 + 2 ||
+        closes.length < lookback ||
+        !closes.every(Number.isFinite) ||
+        !macdLine.every(Number.isFinite)
+    ) {
+        return {
+            status: "INSUFFICIENT OR INVALID DATA"
+        };
+    }
+
+    const start = closes.length - lookback;
+    const lowPivots = [];
+    const highPivots = [];
+
+    for (
+        let i = start + pivotStrength;
+        i < closes.length - pivotStrength;
+        i++
+    ) {
+        let isLow = true;
+        let isHigh = true;
+
+        for (let j = 1; j <= pivotStrength; j++) {
+            if (
+                closes[i] >= closes[i - j] ||
+                closes[i] >= closes[i + j]
+            ) {
+                isLow = false;
+            }
+
+            if (
+                closes[i] <= closes[i - j] ||
+                closes[i] <= closes[i + j]
+            ) {
+                isHigh = false;
+            }
+        }
+
+        if (isLow) {
+            lowPivots.push({
+                index: i,
+                price: closes[i],
+                macd: macdLine[i]
+            });
+        }
+
+        if (isHigh) {
+            highPivots.push({
+                index: i,
+                price: closes[i],
+                macd: macdLine[i]
+            });
+        }
+    }
+
+    let bullishDivergence = false;
+    let bearishDivergence = false;
+
+    if (lowPivots.length >= 2) {
+        const previous = lowPivots[lowPivots.length - 2];
+        const latest = lowPivots[lowPivots.length - 1];
+
+        bullishDivergence =
+            latest.price < previous.price &&
+            latest.macd > previous.macd;
+    }
+
+    if (highPivots.length >= 2) {
+        const previous = highPivots[highPivots.length - 2];
+        const latest = highPivots[highPivots.length - 1];
+
+        bearishDivergence =
+            latest.price > previous.price &&
+            latest.macd < previous.macd;
+    }
+
+    let signal = "NO DIVERGENCE";
+
+    if (bullishDivergence && bearishDivergence) {
+        signal = "MIXED DIVERGENCE";
+    } else if (bullishDivergence) {
+        signal = "BULLISH DIVERGENCE";
+    } else if (bearishDivergence) {
+        signal = "BEARISH DIVERGENCE";
+    }
+
+    return {
+        status: "SUCCESS",
+        signal,
+        bullishDivergence,
+        bearishDivergence,
+        lowPivotCount: lowPivots.length,
+        highPivotCount: highPivots.length
+    };
+  }
+  
 </script>
 </body>
   </html>
