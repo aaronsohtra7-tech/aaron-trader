@@ -2921,6 +2921,50 @@ function aaronGenerateTradeSetup(
     };
   }
           
+// AARON TRADER - Risk & Position Size Calculator
+function aaronCalculatePositionSize(
+    accountBalance,
+    riskPercent,
+    stopLossPips,
+    pipValuePerLot
+) {
+    const values = [
+        accountBalance,
+        riskPercent,
+        stopLossPips,
+        pipValuePerLot
+    ];
+
+    if (!values.every(Number.isFinite)) {
+        return { valid: false, reason: "Invalid input values." };
+    }
+
+    if (
+        accountBalance <= 0 ||
+        riskPercent <= 0 ||
+        riskPercent > 100 ||
+        stopLossPips <= 0 ||
+        pipValuePerLot <= 0
+    ) {
+        return { valid: false, reason: "Check your risk settings." };
+    }
+
+    const riskAmount = accountBalance * (riskPercent / 100);
+
+    const lotSize = riskAmount /
+        (stopLossPips * pipValuePerLot);
+
+    return {
+        valid: true,
+        riskAmount: Number(riskAmount.toFixed(2)),
+        lotSize: Number(lotSize.toFixed(3)),
+        stopLossPips: stopLossPips,
+        estimatedLoss: Number(
+            (lotSize * stopLossPips * pipValuePerLot).toFixed(2)
+        ),
+        message: "Position size calculated successfully."
+    };
+  }
 </script>
 </body>
   </html>
