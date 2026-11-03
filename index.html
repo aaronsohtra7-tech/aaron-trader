@@ -3614,6 +3614,34 @@ function aaronDisplayRSITest() {
 }
 
 aaronDisplayRSITest();
+// AARON TRADER - EMA 20 Calculation Test
+
+function aaronTestEMACalculation() {
+    const testPrices = Array(25).fill(100);
+
+    try {
+        const result = aaronCalculateEMA(testPrices, 20);
+
+        const passed =
+            Number.isFinite(result) &&
+            Math.abs(result - 100) < 0.000001;
+
+        return {
+            test: "EMA 20 Calculation",
+            status: passed ? "PASSED" : "FAILED",
+            result: result,
+            expectedResult: 100,
+            note: "Constant sample-price test only; not a live market test."
+        };
+
+    } catch (error) {
+        return {
+            test: "EMA 20 Calculation",
+            status: "FAILED",
+            reason: error.message
+        };
+    }
+  }
 </script>
 </body>
   </html>
