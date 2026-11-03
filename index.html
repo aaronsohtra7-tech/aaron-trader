@@ -3543,6 +3543,41 @@ if (document.readyState === "loading") {
 } else {
     aaronDisplaySystemDiagnostics();
       }
+// AARON TRADER - RSI Calculation Test
+
+function aaronTestRSICalculation() {
+    const testPrices = [];
+
+    // 20 continuously rising sample prices
+    for (let i = 1; i <= 20; i++) {
+        testPrices.push(i);
+    }
+
+    try {
+        const result = aaronCalculateRSI(testPrices, 14);
+
+        const passed =
+            Number.isFinite(result) &&
+            result >= 0 &&
+            result <= 100;
+
+        return {
+            test: "RSI Calculation",
+            status: passed ? "PASSED" : "FAILED",
+            result: result,
+            expectedRange: "0 to 100",
+            sampleData: "20 rising prices",
+            note: "Sample-data test only; not a live market test."
+        };
+
+    } catch (error) {
+        return {
+            test: "RSI Calculation",
+            status: "FAILED",
+            reason: error.message
+        };
+    }
+  }
 </script>
 </body>
   </html>
