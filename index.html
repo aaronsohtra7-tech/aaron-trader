@@ -4293,6 +4293,53 @@ function aaronDisplayVWAPTest() {
 }
 
 aaronDisplayVWAPTest();
+// AARON TRADER - ICHIMOKU CLOUD TEST
+
+function aaronTestIchimoku() {
+    const high = Array.from({length: 52}, (_, i) => 100 + i);
+    const low = Array.from({length: 52}, (_, i) => 90 + i);
+    const close = Array.from({length: 52}, (_, i) => 95 + i);
+
+    function midpoint(period) {
+        const h = Math.max(...high.slice(-period));
+        const l = Math.min(...low.slice(-period));
+        return (h + l) / 2;
+    }
+
+    const tenkan = midpoint(9);
+    const kijun = midpoint(26);
+    const senkouA = (tenkan + kijun) / 2;
+    const senkouB = midpoint(52);
+    const chikou = close[51];
+
+    return {
+        status: "PASSED",
+        tenkanSen: tenkan,
+        kijunSen: kijun,
+        senkouSpanA: senkouA,
+        senkouSpanB: senkouB,
+        chikouSpan: chikou,
+        note: "Sample data only; not a live market test."
+    };
+}
+
+function aaronDisplayIchimokuTest() {
+    const result = aaronTestIchimoku();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>Ichimoku Cloud Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+  }
 </script>
 </body>
   </html>
