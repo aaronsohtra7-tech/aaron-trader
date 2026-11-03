@@ -2070,6 +2070,91 @@ function aaronBuildMultiTimeframeSummary(candlesByTimeframe) {
     };
   }
   
+
+// AARON TRADER - Market Volatility Analysis
+
+function aaronAnalyzeMarketVolatility(
+    highs,
+    lows,
+    closes,
+    period = 14
+) {
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        !Number.isInteger(period) ||
+        period < 1 ||
+        highs.length !== lows.length ||
+        highs.length !== closes.length ||
+        highs.length < period + 1
+    ) {
+        return {
+            status: "INSUFFICIENT DATA"
+        };
+    }
+
+    const trueRanges = [];
+
+    for (let i = 1; i < closes.length; i++) {
+        const high = highs[i];
+        const low = lows[i];
+        const previousClose = closes[i - 1];
+
+        if (
+            !Number.isFinite(high) ||
+            !Number.isFinite(low) ||
+            !Number.isFinite(previousClose) ||
+            high < low
+        ) {
+            return {
+                status: "INVALID CANDLE DATA"
+            };
+        }
+
+        const trueRange = Math.max(
+            high - low,
+            Math.abs(high - previousClose),
+            Math.abs(low - previousClose)
+        );
+
+        trueRanges.push(trueRange);
+    }
+
+    const recentRanges = trueRanges.slice(-period);
+
+    const atr = recentRanges.reduce(
+        (sum, value) => sum + value,
+        0
+    ) / period;
+
+    const currentClose = closes[closes.length - 1];
+
+    if (!Number.isFinite(currentClose) || currentClose <= 0) {
+        return {
+            status: "INVALID PRICE DATA"
+        };
+    }
+
+    const volatilityPercent = (atr / currentClose) * 100;
+
+    let volatilityLevel = "MODERATE";
+
+    if (volatilityPercent < 0.05) {
+        volatilityLevel = "LOW";
+    } else if (volatilityPercent >= 0.20) {
+        volatilityLevel = "HIGH";
+    }
+
+    return {
+        status: "SUCCESS",
+        atr,
+        volatilityPercent,
+        volatilityLevel,
+        period
+    };
+  }
+  
 </script>
 </body>
   </html>
