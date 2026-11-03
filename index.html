@@ -4029,6 +4029,65 @@ function aaronCheckStochasticOutput() {
 }
 
 aaronCheckStochasticOutput();
+// AARON TRADER - Stochastic Calculation Function
+function aaronCalculateStochastic(highs, lows, closes, period = 14, smooth = 3) {
+    if (
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        highs.length !== lows.length ||
+        highs.length !== closes.length ||
+        !Number.isInteger(period) ||
+        !Number.isInteger(smooth) ||
+        period < 1 ||
+        smooth < 1 ||
+        closes.length < period + smooth - 1
+    ) {
+        throw new Error("Invalid Stochastic input data.");
+    }
+
+    const kValues = [];
+
+    for (let i = period - 1; i < closes.length; i++) {
+        let highestHigh = -Infinity;
+        let lowestLow = Infinity;
+
+        for (let j = i - period + 1; j <= i; j++) {
+            if (
+                !Number.isFinite(highs[j]) ||
+                !Number.isFinite(lows[j]) ||
+                !Number.isFinite(closes[j]) ||
+                highs[j] < lows[j]
+            ) {
+                throw new Error("Invalid candle values.");
+            }
+
+            highestHigh = Math.max(highestHigh, highs[j]);
+            lowestLow = Math.min(lowestLow, lows[j]);
+        }
+
+        const range = highestHigh - lowestLow;
+
+        const k = range === 0
+            ? 50
+            : ((closes[i] - lowestLow) / range) * 100;
+
+        kValues.push(k);
+    }
+
+    const recentKValues = kValues.slice(-smooth);
+
+    const latestK = kValues[kValues.length - 1];
+
+    const d = recentKValues.reduce(
+        (total, value) => total + value, 0
+    ) / recentKValues.length;
+
+    return {
+        k: Number(latestK.toFixed(2)),
+        d: Number(d.toFixed(2))
+    };
+  }
 </script>
 </body>
   </html>
