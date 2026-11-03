@@ -3933,6 +3933,45 @@ function aaronCheckBollingerOutput() {
 }
 
 aaronCheckBollingerOutput();
+// AARON TRADER - Bollinger Bands Calculation Test
+function aaronTestBollingerCalculation() {
+    const testPrices = Array.from(
+        { length: 40 },
+        (_, i) => 100 + i
+    );
+
+    try {
+        const result = aaronCalculateBollingerBands(
+            testPrices, 20, 2
+        );
+
+        const passed =
+            result &&
+            Number.isFinite(result.middle) &&
+            Number.isFinite(result.upper) &&
+            Number.isFinite(result.lower) &&
+            Math.abs(result.middle - 129.5) < 0.00001 &&
+            Math.abs(result.upper - 141.03256) < 0.0001 &&
+            Math.abs(result.lower - 117.96744) < 0.0001 &&
+            result.upper > result.middle &&
+            result.middle > result.lower;
+
+        return {
+            test: "Bollinger Bands Calculation",
+            status: passed ? "PASSED" : "FAILED",
+            middle: result?.middle,
+            upper: result?.upper,
+            lower: result?.lower,
+            note: "Sample-price test only; not a live market test."
+        };
+    } catch (error) {
+        return {
+            test: "Bollinger Bands Calculation",
+            status: "FAILED",
+            reason: error.message
+        };
+    }
+  }
 </script>
 </body>
   </html>
