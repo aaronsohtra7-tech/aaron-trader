@@ -1608,6 +1608,92 @@ function aaronDetectHammerShootingStar(
             index: null
         };
   }
+// AARON TRADER - Morning Star & Evening Star
+function aaronDetectMorningEveningStar(
+    opens,
+    highs,
+    lows,
+    closes,
+    bodyRatio = 0.3
+) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(opens) ||
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        opens.length !== length ||
+        highs.length !== length ||
+        lows.length !== length ||
+        length < 3
+    ) {
+        return null;
+    }
+
+    const patterns = [];
+
+    for (let i = 2; i < length; i++) {
+        const firstBody = Math.abs(closes[i - 2] - opens[i - 2]);
+        const middleBody = Math.abs(closes[i - 1] - opens[i - 1]);
+        const thirdBody = Math.abs(closes[i] - opens[i]);
+
+        const firstRange = highs[i - 2] - lows[i - 2];
+        const middleRange = highs[i - 1] - lows[i - 1];
+        const thirdRange = highs[i] - lows[i];
+
+        if (
+            firstRange <= 0 ||
+            middleRange <= 0 ||
+            thirdRange <= 0
+        ) continue;
+
+        const firstBearish = closes[i - 2] < opens[i - 2];
+        const firstBullish = closes[i - 2] > opens[i - 2];
+
+        const middleSmall =
+            middleBody / middleRange <= bodyRatio;
+
+        const thirdBullish = closes[i] > opens[i];
+        const thirdBearish = closes[i] < opens[i];
+
+        const morningStar =
+            firstBearish &&
+            middleSmall &&
+            thirdBullish &&
+            thirdBody >= firstBody * 0.5 &&
+            closes[i] > (opens[i - 2] + closes[i - 2]) / 2;
+
+        const eveningStar =
+            firstBullish &&
+            middleSmall &&
+            thirdBearish &&
+            thirdBody >= firstBody * 0.5 &&
+            closes[i] < (opens[i - 2] + closes[i - 2]) / 2;
+
+        if (morningStar) {
+            patterns.push({
+                pattern: "MORNING_STAR",
+                direction: "BULLISH",
+                index: i
+            });
+        } else if (eveningStar) {
+            patterns.push({
+                pattern: "EVENING_STAR",
+                direction: "BEARISH",
+                index: i
+            });
+        }
+    }
+
+    return patterns.length
+        ? patterns[patterns.length - 1]
+        : {
+            pattern: "NO_PATTERN",
+            direction: "NONE",
+            index: null
+        };
+  }
 </script>
 </body>
   </html>
