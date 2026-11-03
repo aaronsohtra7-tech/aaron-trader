@@ -3795,6 +3795,31 @@ function aaronTestMACDCalculation() {
         };
     }
   }
+// AARON TRADER - Display MACD Test
+function aaronDisplayMACDTest() {
+    const result = aaronTestMACDCalculation();
+
+    const panel = document.createElement("div");
+    panel.id = "aaron-macd-test";
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>MACD Calculation Test</h3>
+        <p>Status: <strong>${result.status}</strong></p>
+        <p>MACD: ${result.macd ?? "Not available"}</p>
+        <p>Signal: ${result.signal ?? "Not available"}</p>
+        <p>Histogram: ${result.histogram ?? "Not available"}</p>
+        <p>${result.note ?? result.reason ?? ""}</p>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+aaronDisplayMACDTest();
 </script>
 </body>
   </html>
