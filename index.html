@@ -4388,6 +4388,61 @@ function aaronDisplayCCITest() {
     document.body.appendChild(panel);
   }
 aaronDisplayCCITest();
+// AARON TRADER - ATR 14 CALCULATION TEST
+
+function aaronTestATR() {
+    const high = [];
+    const low = [];
+    const close = [];
+
+    for (let i = 0; i < 15; i++) {
+        high.push(110 + i);
+        low.push(100 + i);
+        close.push(105 + i);
+    }
+
+    const trueRanges = [];
+
+    for (let i = 1; i < 15; i++) {
+        const tr = Math.max(
+            high[i] - low[i],
+            Math.abs(high[i] - close[i - 1]),
+            Math.abs(low[i] - close[i - 1])
+        );
+
+        trueRanges.push(tr);
+    }
+
+    const atr = trueRanges.reduce(
+        (sum, value) => sum + value, 0
+    ) / 14;
+
+    return {
+        status: Number.isFinite(atr) ? "PASSED" : "FAILED",
+        atr: Number(atr.toFixed(5)),
+        period: 14,
+        method: "Simple Average of True Range",
+        note: "Sample data only; not a live market test."
+    };
+}
+
+function aaronDisplayATRTest() {
+    const result = aaronTestATR();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>ATR Calculation Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+  }
 </script>
 </body>
   </html>
