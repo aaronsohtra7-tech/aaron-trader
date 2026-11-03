@@ -1471,6 +1471,66 @@ function aaronDetectPinBar(
             index: null
         };
   }
+// AARON TRADER - Doji Pattern
+function aaronDetectDoji(
+    opens,
+    highs,
+    lows,
+    closes,
+    bodyRatio = 0.1
+) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(opens) ||
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        opens.length !== length ||
+        highs.length !== length ||
+        lows.length !== length
+    ) {
+        return null;
+    }
+
+    const patterns = [];
+
+    for (let i = 0; i < length; i++) {
+        const open = opens[i];
+        const high = highs[i];
+        const low = lows[i];
+        const close = closes[i];
+
+        if (![open, high, low, close].every(Number.isFinite)) {
+            continue;
+        }
+
+        const range = high - low;
+
+        if (range <= 0) continue;
+
+        const body = Math.abs(close - open);
+        const ratio = body / range;
+
+        if (ratio <= bodyRatio) {
+            patterns.push({
+                pattern: "DOJI",
+                direction: "NEUTRAL",
+                index: i,
+                open,
+                close
+            });
+        }
+    }
+
+    return patterns.length
+        ? patterns[patterns.length - 1]
+        : {
+            pattern: "NO_DOJI",
+            direction: "NONE",
+            index: null
+        };
+  }
 </script>
 </body>
   </html>
