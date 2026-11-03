@@ -3729,6 +3729,37 @@ function aaronDisplaySMATest() {
 }
 
 aaronDisplaySMATest();
+// AARON TRADER - MACD Output Check
+function aaronCheckMACDOutput() {
+    const testPrices = Array.from(
+        { length: 40 },
+        (_, i) => 100 + i
+    );
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = "<h3>MACD Output Check</h3>";
+
+    const output = document.createElement("pre");
+    output.style.whiteSpace = "pre-wrap";
+
+    try {
+        const result = aaronCalculateMACD(testPrices);
+        output.textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+        output.textContent = "ERROR: " + error.message;
+    }
+
+    panel.appendChild(output);
+    document.body.appendChild(panel);
+}
+
+aaronCheckMACDOutput();
 </script>
 </body>
   </html>
