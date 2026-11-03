@@ -3578,6 +3578,42 @@ function aaronTestRSICalculation() {
         };
     }
   }
+// AARON TRADER - Display RSI Test Result
+
+function aaronDisplayRSITest() {
+    const result = aaronTestRSICalculation();
+
+    let panel = document.getElementById("aaron-rsi-test");
+
+    if (!panel) {
+        panel = document.createElement("section");
+        panel.id = "aaron-rsi-test";
+        document.body.appendChild(panel);
+    }
+
+    panel.style.cssText =
+        "background:#111827;color:white;padding:18px;margin:20px;border-radius:12px;font-family:Arial;";
+
+    const heading = document.createElement("h2");
+    heading.textContent = "RSI Calculation Test";
+    panel.replaceChildren(heading);
+
+    const status = document.createElement("p");
+    status.textContent = "Status: " + result.status;
+    status.style.color =
+        result.status === "PASSED" ? "#4ade80" : "#f87171";
+    panel.appendChild(status);
+
+    const value = document.createElement("p");
+    value.textContent = "RSI Result: " + result.result;
+    panel.appendChild(value);
+
+    const note = document.createElement("p");
+    note.textContent = result.note || result.reason || "";
+    panel.appendChild(note);
+}
+
+aaronDisplayRSITest();
 </script>
 </body>
   </html>
