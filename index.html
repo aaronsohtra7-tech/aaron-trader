@@ -3445,6 +3445,43 @@ function aaronSettlePredictionRecord(recordId, actualClose) {
         };
     }
   }
+// AARON TRADER - Phase 6 System Diagnostics
+
+function aaronRunSystemDiagnostics() {
+    const requiredFunctions = [
+        "aaronScorePredictionSignals",
+        "aaronGenerateTradeSetup",
+        "aaronCalculatePositionSize",
+        "aaronConfirmMultiTimeframePrediction",
+        "aaronBuildPredictionExplanation",
+        "aaronApplyNoTradeSafetyFilter",
+        "aaronCalibratePredictionProbability",
+        "aaronSavePredictionRecord",
+        "aaronSettlePredictionRecord"
+    ];
+
+    const results = requiredFunctions.map(name => {
+        const available = typeof window[name] === "function";
+
+        return {
+            function: name,
+            status: available ? "AVAILABLE" : "MISSING",
+            passed: available
+        };
+    });
+
+    const passed = results.filter(item => item.passed).length;
+    const failed = results.length - passed;
+
+    return {
+        totalTests: results.length,
+        passed: passed,
+        failed: failed,
+        overallStatus: failed === 0 ? "READY FOR NEXT TEST" : "CHECK REQUIRED",
+        results: results,
+        note: "Function availability check only. Live data and calculation tests are still required."
+    };
+  }
 </script>
 </body>
   </html>
