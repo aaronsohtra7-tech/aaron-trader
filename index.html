@@ -3482,6 +3482,67 @@ function aaronRunSystemDiagnostics() {
         note: "Function availability check only. Live data and calculation tests are still required."
     };
   }
+// AARON TRADER - Visible System Diagnostics Panel
+
+function aaronDisplaySystemDiagnostics() {
+    const report = aaronRunSystemDiagnostics();
+
+    let panel = document.getElementById("aaron-diagnostics-panel");
+
+    if (!panel) {
+        panel = document.createElement("section");
+        panel.id = "aaron-diagnostics-panel";
+        document.body.appendChild(panel);
+    }
+
+    panel.style.cssText = `
+        background: #111827;
+        color: #ffffff;
+        padding: 20px;
+        margin: 20px;
+        border: 1px solid #374151;
+        border-radius: 12px;
+        font-family: Arial, sans-serif;
+    `;
+
+    const heading = document.createElement("h2");
+    heading.textContent = "AARON TRADER - System Diagnostics";
+    panel.replaceChildren(heading);
+
+    const summary = document.createElement("p");
+    summary.textContent =
+        "Passed: " + report.passed +
+        " | Missing: " + report.failed +
+        " | Total: " + report.totalTests;
+
+    panel.appendChild(summary);
+
+    report.results.forEach(item => {
+        const row = document.createElement("p");
+
+        row.textContent =
+            (item.passed ? "✅ " : "❌ ") +
+            item.function + " — " + item.status;
+
+        row.style.color = item.passed ? "#4ade80" : "#f87171";
+        panel.appendChild(row);
+    });
+
+    const note = document.createElement("p");
+    note.textContent = report.note;
+    note.style.color = "#fbbf24";
+    panel.appendChild(note);
+}
+
+// Show panel after the page is ready
+if (document.readyState === "loading") {
+    document.addEventListener(
+        "DOMContentLoaded",
+        aaronDisplaySystemDiagnostics
+    );
+} else {
+    aaronDisplaySystemDiagnostics();
+      }
 </script>
 </body>
   </html>
