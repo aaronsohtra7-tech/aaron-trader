@@ -4252,6 +4252,47 @@ function aaronCheckVWAPOutput() {
 }
 
 aaronCheckVWAPOutput();
+// AARON TRADER - VWAP Calculation Test
+function aaronTestVWAPCalculation() {
+    const highs = Array.from({ length: 30 }, (_, i) => 102 + i);
+    const lows = Array.from({ length: 30 }, (_, i) => 98 + i);
+    const closes = Array.from({ length: 30 }, (_, i) => 100 + i);
+    const volumes = Array.from({ length: 30 }, (_, i) => 1000 + (i * 10));
+
+    const expected = 115.15429403202329;
+    const result = aaronCalculateVWAP(highs, lows, closes, volumes);
+
+    const passed =
+        Number.isFinite(result) &&
+        Math.abs(result - expected) < 0.00001;
+
+    return {
+        status: passed ? "PASSED" : "FAILED",
+        vwap: Number(result.toFixed(5)),
+        expected: Number(expected.toFixed(5)),
+        note: "Sample data only; not a live market test."
+    };
+}
+
+function aaronDisplayVWAPTest() {
+    const result = aaronTestVWAPCalculation();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>VWAP Calculation Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+aaronDisplayVWAPTest();
 </script>
 </body>
   </html>
