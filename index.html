@@ -3306,6 +3306,145 @@ function aaronCalibratePredictionProbability(
         note: "Historical estimate, not a guarantee of future results."
     };
   }
+// AARON TRADER - Prediction History Recorder
+
+function aaronSavePredictionRecord(prediction) {
+    const storageKey = "aaron_prediction_history";
+
+    if (
+        !prediction ||
+        typeof prediction.pair !== "string" ||
+        typeof prediction.timeframe !== "string" ||
+        typeof prediction.forecastHorizon !== "string" ||
+        !Number.isFinite(prediction.entryPrice) ||
+        prediction.entryPrice <= 0 ||
+        !Number.isFinite(prediction.upProbability) ||
+        prediction.upProbability < 0 ||
+        prediction.upProbability > 100
+    ) {
+        return {
+            saved: false,
+            reason: "Prediction details are invalid."
+        };
+    }
+
+    try {
+        const history = JSON.parse(
+            localStorage.getItem(storageKey) || "[]"
+        );
+
+        if (!Array.isArray(history)) {
+            throw new Error("Invalid history format.");
+        }
+
+        const record = {
+            id: "AT-" + Date.now() + "-" + Math.floor(Math.random() * 100000),
+            pair: prediction.pair,
+            timeframe: prediction.timeframe,
+            forecastHorizon: prediction.forecastHorizon,
+            entryPrice: prediction.entryPrice,
+            predictedUpProbability: prediction.upProbability / 100,
+            actualDirection: null,
+            actualClose: null,
+            settled: false,
+            createdAt: new Date().toISOString()
+        };
+
+        history.push(record);
+
+        // Keep the latest 2,000 records
+        const limitedHistory = history.slice(-2000);
+
+        localStorage.setItem(
+            storageKey,
+            JSON.stringify(limitedHistory)
+        );
+
+        return {
+            saved: true,
+            recordId: record.id,
+            message: "Prediction record saved."
+        };
+
+    } catch (error) {
+        return {
+            saved: false,
+            reason: "Could not save prediction history."
+        };
+    }
+}
+
+
+function aaronSettlePredictionRecord(recordId, actualClose) {
+    const storageKey = "aaron_prediction_history";
+
+    if (
+        typeof recordId !== "string" ||
+        !Number.isFinite(actualClose) ||
+        actualClose <= 0
+    ) {
+        return {
+            settled: false,
+            reason: "Invalid settlement details."
+        };
+    }
+
+    try {
+        const history = JSON.parse(
+            localStorage.getItem(storageKey) || "[]"
+        );
+
+        if (!Array.isArray(history)) {
+            throw new Error("Invalid history format.");
+        }
+
+        const record = history.find(item => item.id === recordId);
+
+        if (!record) {
+            return {
+                settled: false,
+                reason: "Prediction record not found."
+            };
+        }
+
+        if (record.settled) {
+            return {
+                settled: false,
+                reason: "Prediction is already settled."
+            };
+        }
+
+        record.actualClose = actualClose;
+
+        if (actualClose > record.entryPrice) {
+            record.actualDirection = "UP";
+        } else if (actualClose < record.entryPrice) {
+            record.actualDirection = "DOWN";
+        } else {
+            record.actualDirection = "FLAT";
+        }
+
+        record.settled = true;
+        record.settledAt = new Date().toISOString();
+
+        localStorage.setItem(
+            storageKey,
+            JSON.stringify(history)
+        );
+
+        return {
+            settled: true,
+            actualDirection: record.actualDirection,
+            recordId: record.id
+        };
+
+    } catch (error) {
+        return {
+            settled: false,
+            reason: "Could not settle prediction record."
+        };
+    }
+  }
 </script>
 </body>
   </html>
