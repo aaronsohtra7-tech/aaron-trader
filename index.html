@@ -1531,6 +1531,83 @@ function aaronDetectDoji(
             index: null
         };
   }
+// AARON TRADER - Hammer & Shooting Star
+function aaronDetectHammerShootingStar(
+    opens,
+    highs,
+    lows,
+    closes
+) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(opens) ||
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        opens.length !== length ||
+        highs.length !== length ||
+        lows.length !== length
+    ) {
+        return null;
+    }
+
+    const patterns = [];
+
+    for (let i = 0; i < length; i++) {
+        const open = opens[i];
+        const high = highs[i];
+        const low = lows[i];
+        const close = closes[i];
+
+        if (![open, high, low, close].every(Number.isFinite)) {
+            continue;
+        }
+
+        const range = high - low;
+        if (range <= 0) continue;
+
+        const body = Math.abs(close - open);
+        const upperWick = high - Math.max(open, close);
+        const lowerWick = Math.min(open, close) - low;
+
+        if (body / range > 0.35) continue;
+
+        const hammer =
+            lowerWick >= body * 2 &&
+            lowerWick >= range * 0.5 &&
+            upperWick <= range * 0.2 &&
+            close >= low + range * 0.6;
+
+        const shootingStar =
+            upperWick >= body * 2 &&
+            upperWick >= range * 0.5 &&
+            lowerWick <= range * 0.2 &&
+            close <= low + range * 0.4;
+
+        if (hammer) {
+            patterns.push({
+                pattern: "HAMMER",
+                direction: "BULLISH",
+                index: i
+            });
+        } else if (shootingStar) {
+            patterns.push({
+                pattern: "SHOOTING_STAR",
+                direction: "BEARISH",
+                index: i
+            });
+        }
+    }
+
+    return patterns.length
+        ? patterns[patterns.length - 1]
+        : {
+            pattern: "NO_PATTERN",
+            direction: "NONE",
+            index: null
+        };
+  }
 </script>
 </body>
   </html>
