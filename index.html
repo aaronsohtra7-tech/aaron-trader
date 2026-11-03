@@ -4179,6 +4179,46 @@ function aaronCheckADXOutput() {
 }
 
 aaronCheckADXOutput();
+// AARON TRADER - ADX 14 Calculation Test
+function aaronTestADXCalculation() {
+    const highs = Array.from({ length: 40 }, (_, i) => 102 + i);
+    const lows = Array.from({ length: 40 }, (_, i) => 98 + i);
+    const closes = Array.from({ length: 40 }, (_, i) => 100 + i);
+
+    const result = aaronCalculateADX(highs, lows, closes, 14);
+
+    const passed =
+        Number.isFinite(result) &&
+        result >= 0 &&
+        result <= 100;
+
+    return {
+        status: passed ? "PASSED" : "FAILED",
+        adx: result,
+        validRange: "0 to 100",
+        note: "Sample-candle test only; not a live market test."
+    };
+}
+
+function aaronDisplayADXTest() {
+    const result = aaronTestADXCalculation();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>ADX 14 Calculation Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+aaronDisplayADXTest();
 </script>
 </body>
   </html>
