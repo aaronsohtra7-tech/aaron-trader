@@ -1394,6 +1394,83 @@ function aaronDetectEngulfing(opens, closes) {
             index: null
         };
   }
+// AARON TRADER - Pin Bar Pattern
+function aaronDetectPinBar(
+    opens,
+    highs,
+    lows,
+    closes,
+    wickRatio = 2,
+    bodyRatio = 0.35
+) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(opens) ||
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        opens.length !== length ||
+        highs.length !== length ||
+        lows.length !== length
+    ) {
+        return null;
+    }
+
+    const patterns = [];
+
+    for (let i = 0; i < length; i++) {
+        const open = opens[i];
+        const high = highs[i];
+        const low = lows[i];
+        const close = closes[i];
+
+        if (![open, high, low, close].every(Number.isFinite)) {
+            continue;
+        }
+
+        const range = high - low;
+        if (range <= 0) continue;
+
+        const body = Math.abs(close - open);
+        const upperWick = high - Math.max(open, close);
+        const lowerWick = Math.min(open, close) - low;
+
+        if (body / range > bodyRatio) continue;
+
+        const bullishPinBar =
+            lowerWick >= body * wickRatio &&
+            lowerWick > upperWick * 1.5 &&
+            close > low + range * 0.5;
+
+        const bearishPinBar =
+            upperWick >= body * wickRatio &&
+            upperWick > lowerWick * 1.5 &&
+            close < low + range * 0.5;
+
+        if (bullishPinBar) {
+            patterns.push({
+                pattern: "BULLISH_PIN_BAR",
+                direction: "BULLISH",
+                index: i
+            });
+        } else if (bearishPinBar) {
+            patterns.push({
+                pattern: "BEARISH_PIN_BAR",
+                direction: "BEARISH",
+                index: i
+            });
+        }
+    }
+
+    return patterns.length
+        ? patterns[patterns.length - 1]
+        : {
+            pattern: "NO_PIN_BAR",
+            direction: "NONE",
+            index: null
+        };
+  }
 </script>
 </body>
   </html>
