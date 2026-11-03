@@ -4123,6 +4123,30 @@ function aaronTestStochasticCalculation() {
         };
     }
   }
+// AARON TRADER - Display Stochastic Test
+function aaronDisplayStochasticTest() {
+    const result = aaronTestStochasticCalculation();
+
+    const panel = document.createElement("div");
+    panel.id = "aaron-stochastic-test";
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>Stochastic 14, 3 Calculation Test</h3>
+        <p>Status: <strong>${result.status}</strong></p>
+        <p>K: ${result.k ?? "Not available"}</p>
+        <p>D: ${result.d ?? "Not available"}</p>
+        <p>${result.note ?? result.reason ?? ""}</p>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+aaronDisplayStochasticTest();
 </script>
 </body>
   </html>
