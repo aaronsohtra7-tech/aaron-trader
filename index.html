@@ -2743,6 +2743,114 @@ function aaronDetectTrendOrSideways(closes, lookback = 20) {
     };
   }
       
+
+// AARON TRADER - Weighted Prediction Signal Engine
+
+function aaronScorePredictionSignals(analysis) {
+    if (
+        !analysis ||
+        !Array.isArray(analysis.signals)
+    ) {
+        return {
+            status: "INVALID INPUT",
+            decision: "NO TRADE"
+        };
+    }
+
+    const {
+        signals,
+        marketCondition,
+        mtfAlignment,
+        newsRisk,
+        dataFresh
+    } = analysis;
+
+    if (
+        dataFresh !== true ||
+        marketCondition === "SIDEWAYS" ||
+        mtfAlignment === "NOT ALIGNED" ||
+        mtfAlignment === "MIXED" ||
+        newsRisk === "HIGH"
+    ) {
+        return {
+            status: "TRADE FILTER BLOCKED",
+            decision: "NO TRADE",
+            reason: "Data, market condition, timeframe alignment or news risk"
+        };
+    }
+
+    let bullishScore = 0;
+    let bearishScore = 0;
+    let validSignals = 0;
+
+    for (const signal of signals) {
+        if (
+            !signal ||
+            !["BULLISH", "BEARISH", "NEUTRAL"].includes(signal.direction) ||
+            !Number.isFinite(signal.weight) ||
+            signal.weight <= 0
+        ) {
+            continue;
+        }
+
+        if (signal.direction === "BULLISH") {
+            bullishScore += signal.weight;
+            validSignals++;
+        } else if (signal.direction === "BEARISH") {
+            bearishScore += signal.weight;
+            validSignals++;
+        }
+    }
+
+    const totalDirectionalScore =
+        bullishScore + bearishScore;
+
+    if (validSignals < 3 || totalDirectionalScore === 0) {
+        return {
+            status: "INSUFFICIENT SIGNALS",
+            decision: "NO TRADE",
+            bullishScore,
+            bearishScore
+        };
+    }
+
+    const bullishPercent = Math.round(
+        bullishScore / totalDirectionalScore * 100
+    );
+
+    const bearishPercent = 100 - bullishPercent;
+
+    let decision = "NO TRADE";
+    let reason = "Signals are weak or conflicting";
+
+    if (
+        bullishPercent >= 65 &&
+        bullishScore > bearishScore
+    ) {
+        decision = "BUY";
+        reason = "Bullish signals have sufficient agreement";
+    } else if (
+        bearishPercent >= 65 &&
+        bearishScore > bullishScore
+    ) {
+        decision = "SELL";
+        reason = "Bearish signals have sufficient agreement";
+    }
+
+    return {
+        status: "SUCCESS",
+        decision,
+        bullishScore,
+        bearishScore,
+        bullishPercent,
+        bearishPercent,
+        validSignals,
+        reason,
+        scoreType: "DIRECTIONAL SIGNAL AGREEMENT",
+        isVerifiedWinProbability: false
+    };
+  }
+  
 </script>
 </body>
   </html>
