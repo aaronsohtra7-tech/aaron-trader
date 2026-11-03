@@ -2530,6 +2530,129 @@ function aaronAnalyzeForexSessions(date = new Date()) {
     };
           }
   
+
+// AARON TRADER - Economic Calendar Impact Analysis
+
+function aaronAnalyzeEconomicEvents(
+    events,
+    currencyPair,
+    currentTime = new Date(),
+    windowHours = 24
+) {
+    if (
+        !Array.isArray(events) ||
+        typeof currencyPair !== "string" ||
+        !(currentTime instanceof Date) ||
+        isNaN(currentTime.getTime()) ||
+        !Number.isFinite(windowHours) ||
+        windowHours <= 0
+    ) {
+        return {
+            status: "INVALID INPUT"
+        };
+    }
+
+    const currencies = currencyPair
+        .toUpperCase()
+        .replace("/", "")
+        .replace(/[^A-Z]/g, "");
+
+    if (currencies.length !== 6) {
+        return {
+            status: "INVALID CURRENCY PAIR"
+        };
+    }
+
+    const pairCurrencies = [
+        currencies.slice(0, 3),
+        currencies.slice(3, 6)
+    ];
+
+    const startTime = currentTime.getTime();
+    const endTime = startTime + windowHours * 60 * 60 * 1000;
+
+    const relevantEvents = [];
+    let invalidEventCount = 0;
+
+    for (const event of events) {
+        if (
+            !event ||
+            typeof event.currency !== "string" ||
+            typeof event.impact !== "string" ||
+            !event.date
+        ) {
+            invalidEventCount++;
+            continue;
+        }
+
+        const eventTime = new Date(event.date).getTime();
+
+        if (!Number.isFinite(eventTime)) {
+            invalidEventCount++;
+            continue;
+        }
+
+        const currency = event.currency.toUpperCase();
+        const impact = event.impact.toUpperCase();
+
+        if (
+            !pairCurrencies.includes(currency) ||
+            eventTime < startTime ||
+            eventTime > endTime
+        ) {
+            continue;
+        }
+
+        if (!["LOW", "MEDIUM", "HIGH"].includes(impact)) {
+            invalidEventCount++;
+            continue;
+        }
+
+        relevantEvents.push({
+            title: event.title || "Economic event",
+            currency,
+            impact,
+            date: new Date(eventTime).toISOString()
+        });
+    }
+
+    relevantEvents.sort(
+        (a, b) => new Date(a.date) - new Date(b.date)
+    );
+
+    const highImpactCount = relevantEvents.filter(
+        event => event.impact === "HIGH"
+    ).length;
+
+    const mediumImpactCount = relevantEvents.filter(
+        event => event.impact === "MEDIUM"
+    ).length;
+
+    const lowImpactCount = relevantEvents.filter(
+        event => event.impact === "LOW"
+    ).length;
+
+    let marketRisk = "LOW";
+
+    if (highImpactCount > 0) {
+        marketRisk = "HIGH";
+    } else if (mediumImpactCount > 0) {
+        marketRisk = "MODERATE";
+    }
+
+    return {
+        status: "SUCCESS",
+        currencyPair,
+        marketRisk,
+        highImpactCount,
+        mediumImpactCount,
+        lowImpactCount,
+        invalidEventCount,
+        relevantEvents,
+        windowHours
+    };
+  }
+  
 </script>
 </body>
   </html>
