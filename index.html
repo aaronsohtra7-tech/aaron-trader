@@ -4444,6 +4444,47 @@ function aaronDisplayATRTest() {
     document.body.appendChild(panel);
   }
 aaronDisplayATRTest();
+// AARON TRADER - OBV CALCULATION TEST
+
+function aaronTestOBV() {
+    const close = [100, 102, 101, 103, 104];
+    const volume = [1000, 1200, 800, 1500, 1100];
+
+    let obv = 0;
+
+    for (let i = 1; i < close.length; i++) {
+        if (close[i] > close[i - 1]) {
+            obv += volume[i];
+        } else if (close[i] < close[i - 1]) {
+            obv -= volume[i];
+        }
+    }
+
+    return {
+        status: obv === 3000 ? "PASSED" : "FAILED",
+        obv: obv,
+        candles: close.length,
+        note: "Sample data only; not a live market test."
+    };
+}
+
+function aaronDisplayOBVTest() {
+    const result = aaronTestOBV();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>OBV Calculation Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+  }
 </script>
 </body>
   </html>
