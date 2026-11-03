@@ -3040,6 +3040,78 @@ function aaronConfirmMultiTimeframePrediction(timeframeResults) {
         reason: "Timeframes are not sufficiently aligned."
     };
   }
+// AARON TRADER - Prediction Explanation Engine
+function aaronBuildPredictionExplanation(decision, details = {}) {
+    const validDecisions = ["BUY", "SELL", "NO TRADE"];
+
+    if (!validDecisions.includes(decision)) {
+        return {
+            valid: false,
+            decision: "NO TRADE",
+            reasons: ["Invalid prediction decision."]
+        };
+    }
+
+    const reasons = [];
+    const warnings = [];
+
+    if (details.dataFresh === true) {
+        reasons.push("Market data is marked as fresh.");
+    } else {
+        warnings.push("Data freshness is not confirmed.");
+    }
+
+    if (details.marketCondition) {
+        reasons.push(
+            "Market condition: " + details.marketCondition
+        );
+    }
+
+    if (details.newsRisk) {
+        reasons.push("News risk: " + details.newsRisk);
+    }
+
+    if (details.mtfConfirmation) {
+        reasons.push(
+            "Multi-timeframe result: " +
+            details.mtfConfirmation.decision
+        );
+
+        if (details.mtfConfirmation.reason) {
+            reasons.push(details.mtfConfirmation.reason);
+        }
+    } else {
+        warnings.push("Multi-timeframe confirmation is missing.");
+    }
+
+    if (Array.isArray(details.signals)) {
+        details.signals.forEach(signal => {
+            if (
+                signal &&
+                typeof signal.name === "string" &&
+                typeof signal.direction === "string"
+            ) {
+                reasons.push(
+                    signal.name + ": " + signal.direction
+                );
+            }
+        });
+    }
+
+    if (decision === "NO TRADE") {
+        reasons.push(
+            "Conditions are not sufficiently reliable for a trade."
+        );
+    }
+
+    return {
+        valid: true,
+        decision: decision,
+        reasons: reasons,
+        warnings: warnings,
+        note: "These are analysis reasons, not a guarantee of trade outcome."
+    };
+}
 </script>
 </body>
   </html>
