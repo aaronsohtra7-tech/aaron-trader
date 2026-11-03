@@ -2155,6 +2155,70 @@ function aaronAnalyzeMarketVolatility(
     };
   }
   
+
+// AARON TRADER - Volume Analysis
+
+function aaronAnalyzeVolume(volumes, period = 20) {
+    if (
+        !Array.isArray(volumes) ||
+        !Number.isInteger(period) ||
+        period < 2 ||
+        volumes.length < period + 1
+    ) {
+        return {
+            status: "INSUFFICIENT DATA"
+        };
+    }
+
+    if (!volumes.every(
+        value => Number.isFinite(value) && value >= 0
+    )) {
+        return {
+            status: "INVALID VOLUME DATA"
+        };
+    }
+
+    const currentVolume = volumes[volumes.length - 1];
+
+    const previousVolumes = volumes.slice(
+        -(period + 1),
+        -1
+    );
+
+    const averageVolume = previousVolumes.reduce(
+        (sum, value) => sum + value,
+        0
+    ) / period;
+
+    if (averageVolume <= 0) {
+        return {
+            status: "INVALID AVERAGE VOLUME"
+        };
+    }
+
+    const relativeVolume = currentVolume / averageVolume;
+
+    let volumeLevel = "NORMAL";
+
+    if (relativeVolume >= 2) {
+        volumeLevel = "VERY HIGH";
+    } else if (relativeVolume >= 1.5) {
+        volumeLevel = "HIGH";
+    } else if (relativeVolume < 0.5) {
+        volumeLevel = "LOW";
+    }
+
+    return {
+        status: "SUCCESS",
+        currentVolume,
+        averageVolume,
+        relativeVolume,
+        relativeVolumePercent: Math.round(relativeVolume * 100),
+        volumeLevel,
+        volumeType: "PROVIDED VOLUME DATA"
+    };
+  }
+  
 </script>
 </body>
   </html>
