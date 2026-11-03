@@ -2851,6 +2851,76 @@ function aaronScorePredictionSignals(analysis) {
     };
   }
   
+
+// AARON TRADER - Trade Setup Calculator
+
+function aaronGenerateTradeSetup(
+    decision,
+    entryPrice,
+    atr,
+    stopAtrMultiplier = 1.5,
+    rewardRiskRatio = 2
+) {
+    const direction = String(decision).toUpperCase();
+
+    if (!["BUY", "SELL"].includes(direction)) {
+        return {
+            status: "NO TRADE",
+            reason: "A valid BUY or SELL decision is required"
+        };
+    }
+
+    if (
+        !Number.isFinite(entryPrice) ||
+        entryPrice <= 0 ||
+        !Number.isFinite(atr) ||
+        atr <= 0 ||
+        !Number.isFinite(stopAtrMultiplier) ||
+        stopAtrMultiplier <= 0 ||
+        !Number.isFinite(rewardRiskRatio) ||
+        rewardRiskRatio <= 0
+    ) {
+        return {
+            status: "INVALID INPUT",
+            reason: "Entry, ATR and risk settings must be positive numbers"
+        };
+    }
+
+    const riskDistance = atr * stopAtrMultiplier;
+    const rewardDistance = riskDistance * rewardRiskRatio;
+
+    let stopLoss;
+    let takeProfit;
+
+    if (direction === "BUY") {
+        stopLoss = entryPrice - riskDistance;
+        takeProfit = entryPrice + rewardDistance;
+    } else {
+        stopLoss = entryPrice + riskDistance;
+        takeProfit = entryPrice - rewardDistance;
+    }
+
+    if (stopLoss <= 0 || takeProfit <= 0) {
+        return {
+            status: "INVALID PRICE LEVELS",
+            reason: "Calculated price levels must be positive"
+        };
+    }
+
+    return {
+        status: "SUCCESS",
+        decision: direction,
+        entryPrice,
+        stopLoss,
+        takeProfit,
+        riskDistance,
+        rewardDistance,
+        rewardRiskRatio,
+        stopAtrMultiplier,
+        method: "ATR-BASED TRADE SETUP"
+    };
+  }
+          
 </script>
 </body>
   </html>
