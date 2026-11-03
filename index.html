@@ -2219,6 +2219,121 @@ function aaronAnalyzeVolume(volumes, period = 20) {
     };
   }
   
+
+// AARON TRADER - RSI Divergence Detection
+
+function aaronDetectRSIDivergence(
+    closes,
+    rsiValues,
+    lookback = 50,
+    pivotStrength = 3
+) {
+    if (
+        !Array.isArray(closes) ||
+        !Array.isArray(rsiValues) ||
+        closes.length !== rsiValues.length ||
+        !Number.isInteger(lookback) ||
+        !Number.isInteger(pivotStrength) ||
+        pivotStrength < 1 ||
+        lookback < pivotStrength * 2 + 2 ||
+        closes.length < lookback ||
+        !closes.every(Number.isFinite) ||
+        !rsiValues.every(
+            value => Number.isFinite(value) &&
+                value >= 0 && value <= 100
+        )
+    ) {
+        return {
+            status: "INSUFFICIENT OR INVALID DATA"
+        };
+    }
+
+    const start = closes.length - lookback;
+    const lowPivots = [];
+    const highPivots = [];
+
+    for (
+        let i = start + pivotStrength;
+        i < closes.length - pivotStrength;
+        i++
+    ) {
+        let isLow = true;
+        let isHigh = true;
+
+        for (let j = 1; j <= pivotStrength; j++) {
+            if (
+                closes[i] >= closes[i - j] ||
+                closes[i] >= closes[i + j]
+            ) {
+                isLow = false;
+            }
+
+            if (
+                closes[i] <= closes[i - j] ||
+                closes[i] <= closes[i + j]
+            ) {
+                isHigh = false;
+            }
+        }
+
+        if (isLow) {
+            lowPivots.push({
+                index: i,
+                price: closes[i],
+                rsi: rsiValues[i]
+            });
+        }
+
+        if (isHigh) {
+            highPivots.push({
+                index: i,
+                price: closes[i],
+                rsi: rsiValues[i]
+            });
+        }
+    }
+
+    let bullishDivergence = false;
+    let bearishDivergence = false;
+
+    if (lowPivots.length >= 2) {
+        const previous = lowPivots[lowPivots.length - 2];
+        const latest = lowPivots[lowPivots.length - 1];
+
+        bullishDivergence =
+            latest.price < previous.price &&
+            latest.rsi > previous.rsi;
+    }
+
+    if (highPivots.length >= 2) {
+        const previous = highPivots[highPivots.length - 2];
+        const latest = highPivots[highPivots.length - 1];
+
+        bearishDivergence =
+            latest.price > previous.price &&
+            latest.rsi < previous.rsi;
+    }
+
+    let signal = "NO DIVERGENCE";
+
+    if (bullishDivergence && bearishDivergence) {
+        signal = "MIXED DIVERGENCE";
+    } else if (bullishDivergence) {
+        signal = "BULLISH DIVERGENCE";
+    } else if (bearishDivergence) {
+        signal = "BEARISH DIVERGENCE";
+    }
+
+    return {
+        status: "SUCCESS",
+        signal,
+        bullishDivergence,
+        bearishDivergence,
+        lowPivotCount: lowPivots.length,
+        highPivotCount: highPivots.length
+    };
+  }
+  
 </script>
 </body>
   </html>
