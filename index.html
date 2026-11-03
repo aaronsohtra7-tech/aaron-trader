@@ -1694,6 +1694,85 @@ function aaronDetectMorningEveningStar(
             index: null
         };
   }
+// AARON TRADER - Candle Strength
+function aaronCalculateCandleStrength(
+    opens,
+    highs,
+    lows,
+    closes
+) {
+    const length = closes.length;
+
+    if (
+        !Array.isArray(opens) ||
+        !Array.isArray(highs) ||
+        !Array.isArray(lows) ||
+        !Array.isArray(closes) ||
+        opens.length !== length ||
+        highs.length !== length ||
+        lows.length !== length ||
+        length === 0
+    ) {
+        return null;
+    }
+
+    const results = [];
+
+    for (let i = 0; i < length; i++) {
+        const open = opens[i];
+        const high = highs[i];
+        const low = lows[i];
+        const close = closes[i];
+
+        if (![open, high, low, close].every(Number.isFinite)) {
+            results.push(null);
+            continue;
+        }
+
+        const range = high - low;
+
+        if (
+            range <= 0 ||
+            high < Math.max(open, close) ||
+            low > Math.min(open, close)
+        ) {
+            results.push(null);
+            continue;
+        }
+
+        const body = Math.abs(close - open);
+        const upperWick = high - Math.max(open, close);
+        const lowerWick = Math.min(open, close) - low;
+
+        const bodyStrength = (body / range) * 100;
+
+        const direction =
+            close > open ? "BULLISH" :
+            close < open ? "BEARISH" :
+            "NEUTRAL";
+
+        let strength = "WEAK";
+
+        if (bodyStrength >= 70) {
+            strength = "VERY_STRONG";
+        } else if (bodyStrength >= 50) {
+            strength = "STRONG";
+        } else if (bodyStrength >= 30) {
+            strength = "MODERATE";
+        }
+
+        results.push({
+            index: i,
+            direction,
+            strength,
+            bodyStrength: Number(bodyStrength.toFixed(2)),
+            upperWick: Number(upperWick.toFixed(6)),
+            lowerWick: Number(lowerWick.toFixed(6))
+        });
+    }
+
+    return results;
+  }
 </script>
 </body>
   </html>
