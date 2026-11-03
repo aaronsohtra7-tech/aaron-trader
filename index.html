@@ -2653,6 +2653,96 @@ function aaronAnalyzeEconomicEvents(
     };
   }
   
+
+// AARON TRADER - Trend & Sideways Market Detection
+
+function aaronDetectTrendOrSideways(closes, lookback = 20) {
+    if (
+        !Array.isArray(closes) ||
+        !Number.isInteger(lookback) ||
+        lookback < 10 ||
+        closes.length < lookback ||
+        !closes.every(
+            value => Number.isFinite(value) && value > 0
+        )
+    ) {
+        return {
+            status: "INSUFFICIENT OR INVALID DATA"
+        };
+    }
+
+    const values = closes.slice(-lookback);
+    const count = values.length;
+
+    function calculateEMA(data, period) {
+        if (data.length < period) return null;
+
+        let ema = data.slice(0, period).reduce(
+            (sum, value) => sum + value,
+            0
+        ) / period;
+
+        const multiplier = 2 / (period + 1);
+
+        for (let i = period; i < data.length; i++) {
+            ema = (data[i] - ema) * multiplier + ema;
+        }
+
+        return ema;
+    }
+
+    const ema9 = calculateEMA(values, 9);
+    const ema20 = calculateEMA(values, 20);
+
+    const firstPrice = values[0];
+    const lastPrice = values[count - 1];
+
+    const priceChangePercent =
+        ((lastPrice - firstPrice) / firstPrice) * 100;
+
+    const averagePrice = values.reduce(
+        (sum, value) => sum + value,
+        0
+    ) / count;
+
+    const highestPrice = Math.max(...values);
+    const lowestPrice = Math.min(...values);
+
+    const rangePercent =
+        ((highestPrice - lowestPrice) / averagePrice) * 100;
+
+    let marketCondition = "UNCLEAR";
+
+    if (
+        ema9 > ema20 &&
+        lastPrice > ema9 &&
+        priceChangePercent >= 0.15
+    ) {
+        marketCondition = "UPTREND";
+    } else if (
+        ema9 < ema20 &&
+        lastPrice < ema9 &&
+        priceChangePercent <= -0.15
+    ) {
+        marketCondition = "DOWNTREND";
+    } else if (
+        Math.abs(priceChangePercent) < 0.15 &&
+        rangePercent < 0.5
+    ) {
+        marketCondition = "SIDEWAYS";
+    }
+
+    return {
+        status: "SUCCESS",
+        marketCondition,
+        ema9,
+        ema20,
+        priceChangePercent,
+        rangePercent,
+        lookback
+    };
+  }
+      
 </script>
 </body>
   </html>
