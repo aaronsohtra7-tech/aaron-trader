@@ -3642,6 +3642,42 @@ function aaronTestEMACalculation() {
         };
     }
   }
+// AARON TRADER - Display EMA Test Result
+
+function aaronDisplayEMATest() {
+    const result = aaronTestEMACalculation();
+
+    let panel = document.getElementById("aaron-ema-test");
+
+    if (!panel) {
+        panel = document.createElement("section");
+        panel.id = "aaron-ema-test";
+        document.body.appendChild(panel);
+    }
+
+    panel.style.cssText =
+        "background:#111827;color:white;padding:18px;margin:20px;border-radius:12px;font-family:Arial;";
+
+    const heading = document.createElement("h2");
+    heading.textContent = "EMA 20 Calculation Test";
+    panel.replaceChildren(heading);
+
+    const status = document.createElement("p");
+    status.textContent = "Status: " + result.status;
+    status.style.color =
+        result.status === "PASSED" ? "#4ade80" : "#f87171";
+    panel.appendChild(status);
+
+    const value = document.createElement("p");
+    value.textContent = "EMA Result: " + result.result;
+    panel.appendChild(value);
+
+    const note = document.createElement("p");
+    note.textContent = result.note || result.reason || "";
+    panel.appendChild(note);
+}
+
+aaronDisplayEMATest();
 </script>
 </body>
   </html>
