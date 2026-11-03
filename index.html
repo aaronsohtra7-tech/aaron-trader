@@ -1333,6 +1333,67 @@ function aaronCalculateFibonacci(
         levels
     };
   }
+// AARON TRADER - Engulfing Pattern
+function aaronDetectEngulfing(opens, closes) {
+    if (
+        !Array.isArray(opens) ||
+        !Array.isArray(closes) ||
+        opens.length !== closes.length ||
+        closes.length < 2
+    ) {
+        return null;
+    }
+
+    const patterns = [];
+
+    for (let i = 1; i < closes.length; i++) {
+        const previousOpen = opens[i - 1];
+        const previousClose = closes[i - 1];
+        const currentOpen = opens[i];
+        const currentClose = closes[i];
+
+        if (
+            ![previousOpen, previousClose, currentOpen, currentClose]
+                .every(Number.isFinite)
+        ) {
+            continue;
+        }
+
+        const bullishEngulfing =
+            previousClose < previousOpen &&
+            currentClose > currentOpen &&
+            currentOpen <= previousClose &&
+            currentClose >= previousOpen;
+
+        const bearishEngulfing =
+            previousClose > previousOpen &&
+            currentClose < currentOpen &&
+            currentOpen >= previousClose &&
+            currentClose <= previousOpen;
+
+        if (bullishEngulfing) {
+            patterns.push({
+                pattern: "BULLISH_ENGULFING",
+                direction: "BULLISH",
+                index: i
+            });
+        } else if (bearishEngulfing) {
+            patterns.push({
+                pattern: "BEARISH_ENGULFING",
+                direction: "BEARISH",
+                index: i
+            });
+        }
+    }
+
+    return patterns.length
+        ? patterns[patterns.length - 1]
+        : {
+            pattern: "NO_ENGULFING",
+            direction: "NONE",
+            index: null
+        };
+  }
 </script>
 </body>
   </html>
