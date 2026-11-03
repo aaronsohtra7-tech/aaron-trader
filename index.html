@@ -3972,6 +3972,31 @@ function aaronTestBollingerCalculation() {
         };
     }
   }
+// AARON TRADER - Display Bollinger Bands Test
+function aaronDisplayBollingerTest() {
+    const result = aaronTestBollingerCalculation();
+
+    const panel = document.createElement("div");
+    panel.id = "aaron-bollinger-test";
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>Bollinger Bands Calculation Test</h3>
+        <p>Status: <strong>${result.status}</strong></p>
+        <p>Middle: ${result.middle ?? "Not available"}</p>
+        <p>Upper: ${result.upper ?? "Not available"}</p>
+        <p>Lower: ${result.lower ?? "Not available"}</p>
+        <p>${result.note ?? result.reason ?? ""}</p>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+aaronDisplayBollingerTest();
 </script>
 </body>
   </html>
