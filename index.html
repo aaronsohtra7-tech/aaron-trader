@@ -3850,6 +3850,34 @@ function aaronCheckATROutput() {
 }
 
 aaronCheckATROutput();
+// AARON TRADER - ATR 14 Calculation Test
+function aaronTestATRCalculation() {
+    const highs = Array.from({ length: 40 }, (_, i) => 101 + i);
+    const lows = Array.from({ length: 40 }, (_, i) => 99 + i);
+    const closes = Array.from({ length: 40 }, (_, i) => 100 + i);
+
+    try {
+        const result = aaronCalculateATR(highs, lows, closes, 14);
+
+        const passed =
+            Number.isFinite(result) &&
+            Math.abs(result - 2) < 0.000001;
+
+        return {
+            test: "ATR 14 Calculation",
+            status: passed ? "PASSED" : "FAILED",
+            result: result,
+            expectedResult: 2,
+            note: "Sample-candle test only; not a live market test."
+        };
+    } catch (error) {
+        return {
+            test: "ATR 14 Calculation",
+            status: "FAILED",
+            reason: error.message
+        };
+    }
+  }
 </script>
 </body>
   </html>
