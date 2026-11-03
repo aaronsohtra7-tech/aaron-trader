@@ -2446,6 +2446,90 @@ function aaronDetectMACDDivergence(
     };
   }
   
+
+// AARON TRADER - Forex Trading Sessions Analysis
+
+function aaronAnalyzeForexSessions(date = new Date()) {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+        return {
+            status: "INVALID DATE"
+        };
+    }
+
+    function getSessionTime(timeZone) {
+        const parts = new Intl.DateTimeFormat("en-GB", {
+            timeZone,
+            weekday: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23"
+        }).formatToParts(date);
+
+        const values = {};
+
+        for (const part of parts) {
+            values[part.type] = part.value;
+        }
+
+        return {
+            weekday: values.weekday,
+            hour: Number(values.hour),
+            minute: Number(values.minute)
+        };
+    }
+
+    function isSessionOpen(time, startHour, endHour) {
+        const isWeekday =
+            !["Sat", "Sun"].includes(time.weekday);
+
+        const currentMinutes =
+            time.hour * 60 + time.minute;
+
+        return isWeekday &&
+            currentMinutes >= startHour * 60 &&
+            currentMinutes < endHour * 60;
+    }
+
+    const tokyoTime = getSessionTime("Asia/Tokyo");
+    const londonTime = getSessionTime("Europe/London");
+    const newYorkTime = getSessionTime("America/New_York");
+
+    const sessions = {
+        tokyo: {
+            open: isSessionOpen(tokyoTime, 9, 18),
+            localTime: tokyoTime
+        },
+        london: {
+            open: isSessionOpen(londonTime, 8, 17),
+            localTime: londonTime
+        },
+        newYork: {
+            open: isSessionOpen(newYorkTime, 8, 17),
+            localTime: newYorkTime
+        }
+    };
+
+    const activeSessions = Object.entries(sessions)
+        .filter(([, session]) => session.open)
+        .map(([name]) => name);
+
+    let marketStatus = "NO MAJOR SESSION OPEN";
+
+    if (activeSessions.length === 1) {
+        marketStatus = activeSessions[0].toUpperCase() + " SESSION";
+    } else if (activeSessions.length > 1) {
+        marketStatus = "SESSION OVERLAP";
+    }
+
+    return {
+        status: "SUCCESS",
+        marketStatus,
+        activeSessions,
+        sessions,
+        checkedAt: date.toISOString()
+    };
+          }
+  
 </script>
 </body>
   </html>
