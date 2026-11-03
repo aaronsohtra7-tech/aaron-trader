@@ -3706,6 +3706,29 @@ function aaronTestSMACalculation() {
         };
     }
   }
+// AARON TRADER - Display SMA 50 Test Result
+function aaronDisplaySMATest() {
+    const result = aaronTestSMACalculation();
+
+    const panel = document.createElement("div");
+    panel.id = "aaron-sma-test";
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>SMA 50 Calculation Test</h3>
+        <p>Status: <strong>${result.status}</strong></p>
+        <p>SMA Result: ${result.result ?? "Not available"}</p>
+        <p>${result.note ?? result.reason ?? ""}</p>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+aaronDisplaySMATest();
 </script>
 </body>
   </html>
