@@ -3208,6 +3208,104 @@ function aaronApplyNoTradeSafetyFilter(analysis = {}) {
         reasons: ["All configured safety checks passed."]
     };
   }
+// AARON TRADER - Historical Probability Calibration
+function aaronCalibratePredictionProbability(
+    rawUpProbability,
+    historicalForecasts,
+    marketPair,
+    chartTimeframe,
+    forecastHorizon,
+    tolerance = 0.05,
+    minimumSamples = 30
+) {
+    if (
+        !Number.isFinite(rawUpProbability) ||
+        rawUpProbability < 0 ||
+        rawUpProbability > 1
+    ) {
+        return {
+            available: false,
+            reason: "Invalid raw probability."
+        };
+    }
+
+    if (
+        !Array.isArray(historicalForecasts) ||
+        typeof marketPair !== "string" ||
+        typeof chartTimeframe !== "string" ||
+        typeof forecastHorizon !== "string" ||
+        !Number.isFinite(tolerance) ||
+        tolerance <= 0 ||
+        tolerance > 1 ||
+        !Number.isInteger(minimumSamples) ||
+        minimumSamples < 1
+    ) {
+        return {
+            available: false,
+            reason: "Invalid calibration settings or historical data."
+        };
+    }
+
+    const matchingForecasts = historicalForecasts.filter(item =>
+        item &&
+        item.pair === marketPair &&
+        item.timeframe === chartTimeframe &&
+        item.forecastHorizon === forecastHorizon &&
+        Number.isFinite(item.predictedUpProbability) &&
+        item.predictedUpProbability >= 0 &&
+        item.predictedUpProbability <= 1 &&
+        ["UP", "DOWN"].includes(item.actualDirection) &&
+        Math.abs(item.predictedUpProbability - rawUpProbability) <= tolerance
+    );
+
+    const sampleCount = matchingForecasts.length;
+
+    if (sampleCount < minimumSamples) {
+        return {
+            available: false,
+            sampleCount: sampleCount,
+            requiredSamples: minimumSamples,
+            reason: "Not enough comparable historical forecasts."
+        };
+    }
+
+    const upCount = matchingForecasts.filter(
+        item => item.actualDirection === "UP"
+    ).length;
+
+    const upRate = upCount / sampleCount;
+    const downRate = 1 - upRate;
+
+    // 95% Wilson confidence interval
+    const z = 1.96;
+    const denominator = 1 + (z * z) / sampleCount;
+
+    const center = (
+        upRate + (z * z) / (2 * sampleCount)
+    ) / denominator;
+
+    const margin = (
+        z * Math.sqrt(
+            (upRate * downRate / sampleCount) +
+            (z * z) / (4 * sampleCount * sampleCount)
+        )
+    ) / denominator;
+
+    return {
+        available: true,
+        pair: marketPair,
+        timeframe: chartTimeframe,
+        forecastHorizon: forecastHorizon,
+        sampleCount: sampleCount,
+        upProbability: Number((upRate * 100).toFixed(1)),
+        downProbability: Number((downRate * 100).toFixed(1)),
+        upConfidenceRange: [
+            Number((Math.max(0, center - margin) * 100).toFixed(1)),
+            Number((Math.min(1, center + margin) * 100).toFixed(1))
+        ],
+        note: "Historical estimate, not a guarantee of future results."
+    };
+  }
 </script>
 </body>
   </html>
