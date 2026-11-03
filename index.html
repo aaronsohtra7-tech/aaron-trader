@@ -2023,6 +2023,53 @@ function aaronCalculateWeightedMTFScore(timeframeResults) {
     };
   }
   
+
+// AARON TRADER - Complete Multi-Timeframe Summary
+
+function aaronBuildMultiTimeframeSummary(candlesByTimeframe) {
+    if (
+        typeof aaronAnalyzeMultiTimeframeTrend !== "function" ||
+        typeof aaronCheckTimeframeAgreement !== "function" ||
+        typeof aaronAnalyzeTimeframeAlignment !== "function" ||
+        typeof aaronCalculateWeightedMTFScore !== "function"
+    ) {
+        return {
+            error: "Required MTF analysis functions are unavailable"
+        };
+    }
+
+    const trendAnalysis =
+        aaronAnalyzeMultiTimeframeTrend(candlesByTimeframe);
+
+    if (!trendAnalysis || !trendAnalysis.timeframeResults) {
+        return {
+            error: "Unable to analyze timeframe data"
+        };
+    }
+
+    const timeframeResults = trendAnalysis.timeframeResults;
+
+    const agreement =
+        aaronCheckTimeframeAgreement(timeframeResults);
+
+    const alignment =
+        aaronAnalyzeTimeframeAlignment(timeframeResults);
+
+    const weightedScore =
+        aaronCalculateWeightedMTFScore(timeframeResults);
+
+    return {
+        overallTrend: trendAnalysis.overallTrend,
+        timeframeResults,
+        agreement,
+        alignment,
+        weightedScore,
+        dataStatus: trendAnalysis.unavailableCount === 0
+            ? "ALL TIMEFRAMES AVAILABLE"
+            : "SOME TIMEFRAMES UNAVAILABLE"
+    };
+  }
+  
 </script>
 </body>
   </html>
