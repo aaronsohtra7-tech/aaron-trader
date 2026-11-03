@@ -3878,6 +3878,30 @@ function aaronTestATRCalculation() {
         };
     }
   }
+// AARON TRADER - Display ATR 14 Test
+function aaronDisplayATRTest() {
+    const result = aaronTestATRCalculation();
+
+    const panel = document.createElement("div");
+    panel.id = "aaron-atr-test";
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>ATR 14 Calculation Test</h3>
+        <p>Status: <strong>${result.status}</strong></p>
+        <p>ATR Result: ${result.result ?? "Not available"}</p>
+        <p>Expected Result: ${result.expectedResult ?? "Not available"}</p>
+        <p>${result.note ?? result.reason ?? ""}</p>
+    `;
+
+    document.body.appendChild(panel);
+}
+
+aaronDisplayATRTest();
 </script>
 </body>
   </html>
