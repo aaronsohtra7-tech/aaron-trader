@@ -3760,6 +3760,41 @@ function aaronCheckMACDOutput() {
 }
 
 aaronCheckMACDOutput();
+// AARON TRADER - MACD Calculation Test
+function aaronTestMACDCalculation() {
+    const testPrices = Array.from(
+        { length: 40 },
+        (_, i) => 100 + i
+    );
+
+    try {
+        const result = aaronCalculateMACD(testPrices);
+
+        const passed =
+            result &&
+            Number.isFinite(result.macd) &&
+            Number.isFinite(result.signal) &&
+            Number.isFinite(result.histogram) &&
+            Math.abs(
+                result.histogram - (result.macd - result.signal)
+            ) < 0.00001;
+
+        return {
+            test: "MACD Calculation",
+            status: passed ? "PASSED" : "FAILED",
+            macd: result?.macd,
+            signal: result?.signal,
+            histogram: result?.histogram,
+            note: "Sample-price calculation test only; not a live market test."
+        };
+    } catch (error) {
+        return {
+            test: "MACD Calculation",
+            status: "FAILED",
+            reason: error.message
+        };
+    }
+  }
 </script>
 </body>
   </html>
