@@ -4486,6 +4486,64 @@ function aaronDisplayOBVTest() {
     document.body.appendChild(panel);
   }
 aaronDisplayOBVTest();
+// AARON TRADER - MFI 14 CALCULATION TEST
+
+function aaronTestMFI() {
+    const high = [11, 12, 13, 14, 15];
+    const low = [9, 10, 11, 12, 13];
+    const close = [10, 11, 12, 13, 14];
+    const volume = [100, 100, 100, 100, 100];
+
+    let positiveFlow = 0;
+    let negativeFlow = 0;
+
+    for (let i = 1; i < close.length; i++) {
+        const typicalPrice =
+            (high[i] + low[i] + close[i]) / 3;
+
+        const previousTypicalPrice =
+            (high[i - 1] + low[i - 1] + close[i - 1]) / 3;
+
+        const moneyFlow = typicalPrice * volume[i];
+
+        if (typicalPrice > previousTypicalPrice) {
+            positiveFlow += moneyFlow;
+        } else if (typicalPrice < previousTypicalPrice) {
+            negativeFlow += moneyFlow;
+        }
+    }
+
+    const mfi = negativeFlow === 0
+        ? 100
+        : 100 - (100 / (1 + positiveFlow / negativeFlow));
+
+    return {
+        status: Number.isFinite(mfi) ? "PASSED" : "FAILED",
+        mfi: Number(mfi.toFixed(5)),
+        period: 14,
+        positiveFlow: Number(positiveFlow.toFixed(5)),
+        negativeFlow: Number(negativeFlow.toFixed(5)),
+        note: "Sample data only; not a live market test."
+    };
+}
+
+function aaronDisplayMFITest() {
+    const result = aaronTestMFI();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>MFI Calculation Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+  }
 </script>
 </body>
   </html>
