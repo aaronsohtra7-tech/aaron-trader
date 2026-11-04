@@ -4665,6 +4665,77 @@ function aaronDisplayStochasticTest() {
     document.body.appendChild(panel);
   }
 aaronDisplayStochasticTest();
+function calculateParabolicSAR(highs, lows, step = 0.02, maxStep = 0.2) {
+    if (highs.length !== lows.length || highs.length < 2) {
+        return [];
+    }
+
+    const sar = new Array(highs.length);
+    let isUptrend = true;
+    let af = step;
+    let ep = highs[0];
+    sar[0] = lows[0];
+
+    for (let i = 1; i < highs.length; i++) {
+        let previousSAR = sar[i - 1];
+
+        if (isUptrend) {
+            sar[i] = previousSAR + af * (ep - previousSAR);
+            sar[i] = Math.min(sar[i], lows[i - 1]);
+
+            if (i > 1) {
+                sar[i] = Math.min(sar[i], lows[i - 2]);
+            }
+
+            if (lows[i] < sar[i]) {
+                isUptrend = false;
+                sar[i] = ep;
+                ep = lows[i];
+                af = step;
+            } else if (highs[i] > ep) {
+                ep = highs[i];
+                af = Math.min(af + step, maxStep);
+            }
+        } else {
+            sar[i] = previousSAR + af * (ep - previousSAR);
+            sar[i] = Math.max(sar[i], highs[i - 1]);
+
+            if (i > 1) {
+                sar[i] = Math.max(sar[i], highs[i - 2]);
+            }
+
+            if (highs[i] > sar[i]) {
+                isUptrend = true;
+                sar[i] = ep;
+                ep = highs[i];
+                af = step;
+            } else if (lows[i] < ep) {
+                ep = lows[i];
+                af = Math.min(af + step, maxStep);
+            }
+        }
+    }
+
+    return sar;
+      }
+const psarHighs = [10, 11, 12, 13, 12, 11, 10, 9];
+const psarLows = [8, 9, 10, 11, 10, 9, 8, 7];
+
+const psarResult = calculateParabolicSAR(psarHighs, psarLows);
+
+const psarTest = {
+    status:
+        psarResult.length === psarHighs.length &&
+        psarResult.every(Number.isFinite)
+            ? "PASSED"
+            : "FAILED",
+    values: psarResult,
+    validLength: psarResult.length,
+    expectedLength: psarHighs.length,
+    note: "Sample-candle calculation test only; not a live market test."
+};
+
+console.log("Parabolic SAR Calculation Test", psarTest);
 </script>
 </body>
   </html>
