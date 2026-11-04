@@ -4737,6 +4737,15 @@ const psarTest = {
 
 console.log("Parabolic SAR Calculation Test", psarTest);
 </script>
+<div id="psar-test-output" style="padding:15px; margin:15px; background:#111; color:#00ff00; border-radius:10px;">
+    <h3>Parabolic SAR Calculation Test</h3>
+    <pre id="psar-result">Testing...</pre>
+</div>
+
+<script>
+document.getElementById("psar-result").textContent =
+    JSON.stringify(psarTest, null, 2);
+</script>
 </body>
   </html>
                      
