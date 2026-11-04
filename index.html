@@ -4548,6 +4548,50 @@ function aaronDisplayMFITest() {
     document.body.appendChild(panel);
   }
 aaronDisplayMFITest();
+// AARON TRADER - WILLIAMS %R 14 TEST
+
+function aaronTestWilliamsR() {
+    const high = [11,12,13,14,15,16,17,18,19,20,21,22,23,24,25];
+    const low = [5,6,7,8,9,10,11,12,13,14,15,16,17,18,19];
+    const close = [8,9,10,11,12,13,14,15,16,17,18,19,20,21,22];
+
+    const period = 14;
+    const highestHigh = Math.max(...high.slice(-period));
+    const lowestLow = Math.min(...low.slice(-period));
+    const currentClose = close[close.length - 1];
+
+    const williamsR = highestHigh === lowestLow
+        ? null
+        : ((highestHigh - currentClose) /
+           (highestHigh - lowestLow)) * -100;
+
+    return {
+        status: Number.isFinite(williamsR) ? "PASSED" : "FAILED",
+        williamsR: Number(williamsR.toFixed(5)),
+        period: period,
+        highestHigh: highestHigh,
+        lowestLow: lowestLow,
+        note: "Sample data only; not a live market test."
+    };
+}
+
+function aaronDisplayWilliamsRTest() {
+    const result = aaronTestWilliamsR();
+
+    const panel = document.createElement("div");
+    panel.style.padding = "15px";
+    panel.style.margin = "15px 0";
+    panel.style.background = "#1e293b";
+    panel.style.color = "#ffffff";
+    panel.style.borderRadius = "10px";
+
+    panel.innerHTML = `
+        <h3>Williams %R Calculation Test</h3>
+        <pre>${JSON.stringify(result, null, 2)}</pre>
+    `;
+
+    document.body.appendChild(panel);
+      }
 </script>
 </body>
   </html>
