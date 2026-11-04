@@ -4755,6 +4755,73 @@ document.getElementById("psar-result").textContent =
     JSON.stringify(psarTest, null, 2);
 </script>
 <script src="live-forex-data.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  const button = document.getElementById("test-live-data");
+  const status = document.getElementById("live-data-status");
+  const result = document.getElementById("live-data-result");
+
+  if (!button || !status || !result) return;
+
+  function showPrice(value) {
+    return Number(value).toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 6
+    });
+  }
+
+  async function runLiveDataTest() {
+    if (!window.AaronLiveForexData) {
+      status.textContent = "FAILED: Live data module did not load.";
+      result.textContent = "Please check live-forex-data.js.";
+      return;
+    }
+
+    const pair = document.getElementById("pair").value;
+    const timeframe = document.getElementById("timeframe").value;
+
+    button.disabled = true;
+    button.textContent = "TESTING...";
+    status.textContent = "Connecting to the market data feed...";
+    result.textContent = "";
+
+    try {
+      const [quote, candleData] = await Promise.all([
+        window.AaronLiveForexData.getQuote(pair),
+        window.AaronLiveForexData.getCandles(pair, timeframe, 5)
+      ]);
+
+      const bars = candleData.bars;
+      if (!bars.length) throw new Error("No candles were returned.");
+
+      const latest = bars[bars.length - 1];
+
+      status.textContent = "SUCCESS: Live data received.";
+      result.textContent =
+        "Pair: " + pair + "\n" +
+        "Timeframe: " + timeframe + "\n" +
+        "Current mid price: " + showPrice(quote.mid) + "\n" +
+        "Candles received: " + bars.length + "\n" +
+        "Latest candle — Open: " + showPrice(latest.open) +
+        " | High: " + showPrice(latest.high) +
+        " | Low: " + showPrice(latest.low) +
+        " | Close: " + showPrice(latest.close) + "\n" +
+        "Quote stale: " + (quote.stale === true ? "Yes" : quote.stale === false ? "No" : "Not reported") +
+        " | Market state: " + (quote.marketState || "Not reported");
+    } catch (error) {
+      status.textContent = "FAILED: Could not retrieve live data.";
+      result.textContent = error && error.message ? error.message : String(error);
+    } finally {
+      button.disabled = false;
+      button.textContent = "TEST LIVE DATA";
+    }
+  }
+
+  button.addEventListener("click", runLiveDataTest);
+})();
+</script>
 </body>
   </html>
                      
